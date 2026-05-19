@@ -1267,7 +1267,7 @@ attachRealEmails();
 // --- Parcel Perform product data -------------------------------------------
 // Real org/membership data pulled from the Parcel Perform admin MCP.
 // The contract end date overrides our synthesized renewal anniversary —
-// e.g. Nuki actually renews 2026-05-22 (10 days from today), not the
+// e.g. Nuki actually renews 2026-05-22 (3 days from today 2026-05-19), not the
 // estimated June anniversary.
 
 const ppAdmin = (slug: string) => `https://admin.parcelperform.com/merchant/${slug}/`;
@@ -1277,7 +1277,7 @@ const ppDataById: Record<string, ProductData> = {
   xxxlutz: { ppOrgId: 6865, ppSlug: "p2eb02f9af1", ppName: "XXXLutz Group", contractedVolumeAnnual: 15_000_000, ppUsers: 36, ppContractStart: "2025-01-01", ppContractEnd: "2027-12-31", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2eb02f9af1"), country: "AT", organizationType: "enterprise" },
   expondo: { ppOrgId: 2585, ppSlug: "p2300a45a7a", ppName: "Expondo", contractedVolumeAnnual: 1_200_000, ppUsers: 96, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2300a45a7a"), country: "DE", organizationType: "enterprise" },
   "vodafone-de": { ppOrgId: 5321, ppSlug: "p21193e8543", ppName: "Vodafone", contractedVolumeAnnual: 3_000_000, ppUsers: 19, ppContractStart: "2026-04-01", ppContractEnd: "2027-04-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p21193e8543"), country: "DE", organizationType: "enterprise" },
-  "charles-keith": { ppOrgId: 5491, ppSlug: "pa8c9704fda", ppName: "Charles & Keith", contractedVolumeAnnual: 800_000, ppUsers: 43, ppContractStart: "2024-07-18", ppContractEnd: "2026-07-18", ppModules: [1, 2, 4], adminUrl: ppAdmin("pa8c9704fda"), country: "SG", organizationType: "enterprise" },
+  "charles-keith": { ppOrgId: 5491, ppSlug: "pa8c9704fda", ppName: "Charles & Keith", contractedVolumeAnnual: 900_000, ppUsers: 43, ppContractStart: "2024-07-18", ppContractEnd: "2026-07-18", ppModules: [1, 2, 4], adminUrl: ppAdmin("pa8c9704fda"), country: "SG", organizationType: "enterprise" },
   "ms-direct": { ppOrgId: 6036, ppSlug: "p32d43b05bf", ppName: "MS Direct", contractedVolumeAnnual: 500_000, ppUsers: 4, ppContractStart: "2026-03-31", ppContractEnd: "2027-03-30", ppModules: [2, 4], adminUrl: ppAdmin("p32d43b05bf"), country: "CH", organizationType: "enterprise" },
   "nespresso-mx": { ppOrgId: 2831, ppSlug: "pc8203a0148", ppName: "Nespresso Mexico", contractedVolumeAnnual: 296_135, ppUsers: 29, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("pc8203a0148"), country: "MX", organizationType: "enterprise" },
   "nespresso-cl": { ppOrgId: 4526, ppSlug: "p4fbec0bf10", ppName: "Nespresso Chile", contractedVolumeAnnual: 120_000, ppUsers: 18, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p4fbec0bf10"), country: "CL", organizationType: "enterprise" },
@@ -1335,7 +1335,7 @@ attachProductData();
 // --- Real shipment counts pulled from PP admin (2026-05-13) -----------------
 // Each entry: { shipments in current contract year, period start }.
 // Usage % = shipments / contracted annual × 100.
-// Charles & Keith is over 100% (843,927 / 800,000 = 105.5%).
+// C&K contracted volume corrected to 900,000 (from PP admin plan_name) → 843,927/900,000 = 93.8%.
 
 const realUsageById: Record<string, { shipments: number; periodStart: string }> = {
   "charles-keith": { shipments: 843927, periodStart: "2025-07-18" },
@@ -1378,23 +1378,26 @@ function attachRealUsage() {
 attachRealUsage();
 
 // --- Last customer login (PP admin org users, excluding @parcelperform.com) -
-// Pulled 2026-05-13. Sort: user__last_login_date DESC across top 10-50 users.
+// Partially refreshed 2026-05-19 (PUMA, Nuki, C&K, Vodafone, Nespresso AT, Everstox).
+// Remaining accounts carry forward from 2026-05-13 snapshot.
 // "Customer user" = anyone whose email is NOT @parcelperform.com.
 
 type LastLoginEntry = { date: string | null; email?: string; name?: string };
 
 const lastLoginById: Record<string, LastLoginEntry> = {
-  puma: { date: "2026-05-13", email: "marcoantonio.guaschi@concentrix.com" },
+  // Refreshed 2026-05-19:
+  puma: { date: "2026-05-19", email: "marcoantonio.guaschi@concentrix.com" },
+  nuki: { date: "2026-05-19", email: "mohamed.jemni@5ca.com" },
+  "charles-keith": { date: "2026-05-19", email: "desmond.wong@charleskeith.com" },
+  everstox: { date: "2026-05-19", email: "vladan.vasic@everstox.com" },
+  "vodafone-de": { date: "2026-05-18", email: "mike.limke1@vodafone.com" },
+  "nespresso-at": { date: "2026-05-18", email: "philip.konvicka@nestle.com" },
+  // Carried forward from 2026-05-13 snapshot:
   "nespresso-mx": { date: "2026-05-13", email: "yessicaisabel.pazaran@nestle.com" },
   flaconi: { date: "2026-05-13", email: "sebastian.wieloch@flaconi.de" },
   "bettzeit-emma": { date: "2026-05-13", email: "bastien.jausseran@emma-sleep.com" },
   xxxlutz: { date: "2026-05-13", email: "julian.zipfel@xxxl.digital" },
-  nuki: { date: "2026-05-13", email: "andreas.granzow@5ca.com" },
   expondo: { date: "2026-05-13", email: "h.mahmoud.external@expondo.com" },
-  "charles-keith": { date: "2026-05-13", email: "weekiat.choo@charleskeith.com" },
-  "nespresso-at": { date: "2026-05-13", email: "philip.konvicka@nestle.com" },
-  "vodafone-de": { date: "2026-05-12", email: "thorsten.halbach@vodafone.com" },
-  everstox: { date: "2026-05-12", email: "christofer.kraut@everstox.com" },
   "nespresso-cl": { date: "2026-05-08", email: "adria.ferret@nestle.com" },
   motea: { date: "2026-05-08", email: "stefan.keller@motea.com" },
   byrd: { date: "2026-05-04", email: "developers@getbyrd.com" },
