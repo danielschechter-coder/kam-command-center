@@ -10,9 +10,11 @@ import {
   Mail,
   MessageSquare,
   PhoneCall,
+  ShieldAlert,
   Sparkles,
   Ticket,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -32,124 +34,13 @@ import {
   statusClasses,
   statusLabel,
 } from "@/lib/utils";
+import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
 import { accounts, getActionsForAccount } from "@/lib/mockData";
 
 const TODAY = new Date("2026-05-13");
 
 export function generateStaticParams() {
   return accounts.map((a) => ({ id: a.id }));
-}
-
-const JIRA_PRIORITY_ORDER: Record<string, number> = {
-  highest: 1,
-  high: 2,
-  medium: 3,
-  low: 4,
-  lowest: 5,
-};
-
-function jiraSort(a: { priority?: string; createdDate?: string }, b: { priority?: string; createdDate?: string }) {
-  const pa = JIRA_PRIORITY_ORDER[(a.priority ?? "").toLowerCase()] ?? 6;
-  const pb = JIRA_PRIORITY_ORDER[(b.priority ?? "").toLowerCase()] ?? 6;
-  if (pa !== pb) return pa - pb;
-  // older ticket = higher urgency = sort first
-  const da = a.createdDate ? new Date(a.createdDate).getTime() : Infinity;
-  const db = b.createdDate ? new Date(b.createdDate).getTime() : Infinity;
-  return da - db;
-}
-
-function JiraTicketsCard({ account }: { account: ReturnType<typeof accounts.find> & object }) {
-  if (!account) return null;
-  const sorted = [...account.jiraTickets].sort(jiraSort);
-
-  const statusTone = (cat?: string) =>
-    cat === "done"
-      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-      : cat === "indeterminate"
-        ? "bg-sky-50 text-sky-700 ring-sky-200"
-        : "bg-amber-50 text-amber-700 ring-amber-200";
-
-  const priorityTone = (p?: string) => {
-    const l = (p ?? "").toLowerCase();
-    if (l === "highest" || l === "high") return "bg-rose-50 text-rose-700 ring-rose-200";
-    if (l === "medium") return "bg-amber-50 text-amber-700 ring-amber-200";
-    return "bg-slate-50 text-slate-600 ring-slate-200";
-  };
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Ticket className="h-4 w-4 text-sky-600" />
-            Jira tickets
-          </CardTitle>
-          <span className="text-xs text-muted-foreground">
-            {sorted.length > 0
-              ? `${sorted.length} ticket${sorted.length === 1 ? "" : "s"} · sorted by priority & age`
-              : "no open tickets"}
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-2">
-        {sorted.length === 0 ? (
-          <div className="flex items-center gap-2 rounded-lg border border-dashed bg-slate-50/60 p-4 text-sm text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            No active Jira tickets for this account.
-          </div>
-        ) : (
-          <ul className="divide-y">
-            {sorted.map((t) => {
-              const daysOpen = t.createdDate
-                ? Math.round((TODAY.getTime() - new Date(t.createdDate).getTime()) / 86_400_000)
-                : null;
-              return (
-                <li key={t.key} className="py-3">
-                  <div className="flex items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <a
-                          href={t.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700 hover:underline"
-                        >
-                          {t.key}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                        {t.priority ? (
-                          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset", priorityTone(t.priority))}>
-                            {t.priority}
-                          </span>
-                        ) : null}
-                        {t.status ? (
-                          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset", statusTone(t.statusCategory))}>
-                            {t.status}
-                          </span>
-                        ) : null}
-                        {daysOpen !== null ? (
-                          <span className={cn("text-xs tabular-nums", daysOpen > 60 ? "text-rose-600 font-medium" : "text-muted-foreground")}>
-                            Open {daysOpen}d
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-1 text-sm leading-snug">{t.title}</p>
-                      {t.context ? <p className="mt-0.5 text-xs text-muted-foreground">{t.context}</p> : null}
-                      <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                        {t.assignee ? <span>Assignee: <span className="text-foreground">{t.assignee}</span></span> : null}
-                        {t.reporter ? <span>Reporter: <span className="text-foreground">{t.reporter}</span></span> : null}
-                        {t.updatedDate ? <span>Updated {formatRelative(t.updatedDate, TODAY)}</span> : null}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
-  );
 }
 
 const activityIcon = {
@@ -160,6 +51,33 @@ const activityIcon = {
   milestone: TrendingUp,
 };
 
+// ── Jira priority tiers ────────────────────────────────────────────────────
+const JIRA_PRIORITY_ORDER: Record<string, number> = {
+  highest: 1,
+  high: 2,
+  medium: 3,
+  low: 4,
+  lowest: 5,
+};
+
+function jiraSortAge(
+  a: { createdDate?: string },
+  b: { createdDate?: string },
+) {
+  const da = a.createdDate ? new Date(a.createdDate).getTime() : Infinity;
+  const db = b.createdDate ? new Date(b.createdDate).getTime() : Infinity;
+  return da - db; // oldest first
+}
+
+const SOURCE_ICON: Record<string, string> = {
+  gmail: "text-rose-600",
+  slack: "text-violet-600",
+  jira: "text-sky-600",
+  product: "text-emerald-600",
+  renewal: "text-orange-600",
+  risk: "text-rose-700",
+};
+
 export default function AccountDetailPage({ params }: { params: { id: string } }) {
   const account = accounts.find((a) => a.id === params.id);
   if (!account) return notFound();
@@ -167,6 +85,23 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
   const actions = getActionsForAccount(account.id);
   const openActions = actions.filter((a) => a.status !== "done");
   const nextBrief = account.briefs[0];
+  const flagged = isRenewalAndVolumeRisk(account, TODAY);
+  const rationale = buildHealthRationale(account, TODAY);
+
+  // Jira tiers (exclude done)
+  const openTickets = account.jiraTickets.filter((t) => t.statusCategory !== "done");
+  const highTickets = [...openTickets]
+    .filter((t) => ["highest", "high"].includes((t.priority ?? "").toLowerCase()))
+    .sort(jiraSortAge);
+  const medTickets = [...openTickets]
+    .filter((t) => (t.priority ?? "").toLowerCase() === "medium")
+    .sort(jiraSortAge);
+  const lowTickets = [...openTickets]
+    .filter((t) => ["low", "lowest"].includes((t.priority ?? "").toLowerCase()))
+    .sort(jiraSortAge);
+  const unknownTickets = [...openTickets]
+    .filter((t) => !t.priority || !JIRA_PRIORITY_ORDER[(t.priority ?? "").toLowerCase()])
+    .sort(jiraSortAge);
 
   return (
     <div className="space-y-8">
@@ -188,16 +123,21 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
             <HealthPill status={account.health} />
             <Badge variant="outline">{account.segment}</Badge>
             <Badge variant="outline">{account.region}</Badge>
+            {flagged && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">
+                <Zap className="h-3.5 w-3.5" />
+                Renewal + usage alert
+              </span>
+            )}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {account.industry} · Owner: {account.owner}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <SourcePill source="hubspot" connected={true} />
-            <SourcePill source="product" connected={!!account.product} count={account.product?.ppUsers} />
+            <SourcePill source="gmail" connected={true} count={account.emailThreads.length} />
             <SourcePill source="slack" connected={true} count={account.slackSignals.length} />
             <SourcePill source="jira" connected={true} count={account.jiraTickets.length} />
-            <SourcePill source="gmail" connected={true} count={account.emailThreads.length} />
+            <SourcePill source="product" connected={!!account.product} count={account.product?.ppUsers} />
           </div>
         </div>
         {nextBrief ? (
@@ -241,7 +181,9 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
         <Card>
           <CardContent className="p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Renewal</p>
-            <p className="mt-1.5 text-2xl font-semibold tabular-nums">{formatRelative(account.renewalDate, TODAY)}</p>
+            <p className={cn("mt-1.5 text-2xl font-semibold tabular-nums", flagged && "text-rose-700")}>
+              {formatRelative(account.renewalDate, TODAY)}
+            </p>
             <p className="mt-3 inline-flex items-center gap-1 text-xs text-muted-foreground">
               <CalendarClock className="h-3 w-3" />
               {formatDate(account.renewalDate)}
@@ -263,6 +205,54 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
           </CardContent>
         </Card>
       </div>
+
+      {/* Health rationale — always shown, based on Gmail / Slack / Jira / product data only */}
+      <Card className={cn(
+        "border-l-4",
+        account.health === "critical" ? "border-l-rose-500" :
+        account.health === "at_risk" ? "border-l-orange-500" :
+        account.health === "watch" ? "border-l-amber-400" :
+        "border-l-emerald-400"
+      )}>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4" />
+            Why this account is <HealthPill status={account.health} />
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Assessed from Gmail, Slack, Jira, and product usage — HubSpot notes excluded
+          </p>
+        </CardHeader>
+        <CardContent className="pt-2">
+          {rationale.length === 0 ? (
+            <div className="flex items-center gap-2 rounded-lg border border-dashed bg-slate-50/60 p-4 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              No signals of concern from Gmail, Slack, Jira, or product usage.
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {rationale.map((r, i) => (
+                <li key={i} className={cn(
+                  "flex items-start gap-3 rounded-lg border p-3",
+                  r.severity === "critical" ? "border-rose-200 bg-rose-50/60" :
+                  r.severity === "warning" ? "border-amber-200 bg-amber-50/60" :
+                  "border-slate-200 bg-slate-50/40"
+                )}>
+                  <span className={cn(
+                    "mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest",
+                    r.severity === "critical" ? "bg-rose-100 text-rose-700" :
+                    r.severity === "warning" ? "bg-amber-100 text-amber-700" :
+                    "bg-slate-100 text-slate-600"
+                  )}>
+                    {r.source}
+                  </span>
+                  <p className="text-sm leading-snug">{r.text}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -367,7 +357,57 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
             </CardContent>
           </Card>
 
-          <JiraTicketsCard account={account} />
+          {/* Jira tickets — grouped by priority tier */}
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Ticket className="h-4 w-4 text-sky-600" />
+                  Jira tickets
+                </CardTitle>
+                <span className="text-xs text-muted-foreground">
+                  {openTickets.length > 0
+                    ? `${openTickets.length} open · sorted by priority then age`
+                    : "no open tickets"}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-2 space-y-4">
+              {openTickets.length === 0 ? (
+                <div className="flex items-center gap-2 rounded-lg border border-dashed bg-slate-50/60 p-4 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  No active Jira tickets for this account.
+                </div>
+              ) : (
+                <>
+                  {highTickets.length > 0 && (
+                    <JiraTierBlock
+                      label="Highest / High priority"
+                      tickets={highTickets}
+                      headerClass="text-rose-700 bg-rose-50"
+                      borderClass="border-rose-200"
+                    />
+                  )}
+                  {medTickets.length > 0 && (
+                    <JiraTierBlock
+                      label="Medium priority"
+                      tickets={medTickets}
+                      headerClass="text-amber-700 bg-amber-50"
+                      borderClass="border-amber-200"
+                    />
+                  )}
+                  {(lowTickets.length > 0 || unknownTickets.length > 0) && (
+                    <JiraTierBlock
+                      label="Low / Lowest priority"
+                      tickets={[...lowTickets, ...unknownTickets]}
+                      headerClass="text-slate-500 bg-slate-50"
+                      borderClass="border-slate-200"
+                    />
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader className="pb-2">
@@ -456,19 +496,72 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               </ul>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Account notes</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2">
-              <p className="text-sm leading-relaxed text-muted-foreground">{account.notes}</p>
-              <Separator className="my-3" />
-              <p className="text-xs text-muted-foreground">Last touch {formatRelative(account.lastTouch, TODAY)}</p>
-            </CardContent>
-          </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Jira tier block ────────────────────────────────────────────────────────
+interface JiraTierBlockProps {
+  label: string;
+  tickets: NonNullable<ReturnType<typeof accounts.find>>["jiraTickets"];
+  headerClass: string;
+  borderClass: string;
+}
+
+function JiraTierBlock({ label, tickets, headerClass, borderClass }: JiraTierBlockProps) {
+  const statusTone = (cat?: string) =>
+    cat === "done"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : cat === "indeterminate"
+        ? "bg-sky-50 text-sky-700 ring-sky-200"
+        : "bg-amber-50 text-amber-700 ring-amber-200";
+
+  return (
+    <div>
+      <div className={cn("mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest", headerClass)}>
+        {label} · {tickets.length}
+      </div>
+      <ul className="space-y-2">
+        {tickets.map((t) => {
+          const daysOpen = t.createdDate
+            ? Math.round((TODAY.getTime() - new Date(t.createdDate).getTime()) / 86_400_000)
+            : null;
+          return (
+            <li key={t.key} className={cn("rounded-lg border bg-card p-3", borderClass)}>
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href={t.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700 hover:underline"
+                >
+                  {t.key}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+                {t.status ? (
+                  <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset", statusTone(t.statusCategory))}>
+                    {t.status}
+                  </span>
+                ) : null}
+                {daysOpen !== null ? (
+                  <span className={cn("text-xs tabular-nums", daysOpen > 60 ? "font-semibold text-rose-600" : "text-muted-foreground")}>
+                    Open {daysOpen}d
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-1 text-sm leading-snug">{t.title}</p>
+              {t.context ? <p className="mt-0.5 text-xs text-muted-foreground">{t.context}</p> : null}
+              <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                {t.assignee ? <span>Assignee: <span className="text-foreground">{t.assignee}</span></span> : null}
+                {t.reporter ? <span>Reporter: <span className="text-foreground">{t.reporter}</span></span> : null}
+                {t.updatedDate ? <span>Updated {formatRelative(t.updatedDate, TODAY)}</span> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

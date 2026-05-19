@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowUpRight, CalendarClock, DollarSign, ListChecks, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CalendarClock, DollarSign, ListChecks, ShieldAlert, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/stat-card";
@@ -9,6 +9,7 @@ import { SourcePill } from "@/components/source-pill";
 import { NespressoGroup } from "@/components/nespresso-group";
 import { accounts, actionItems, sourceStatus } from "@/lib/mockData";
 import { cn, daysUntil, formatCurrency, formatRelative, priorityClasses } from "@/lib/utils";
+import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
 
 const TODAY = new Date("2026-05-13");
 
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   });
   const openRisks = accounts.reduce((s, a) => s + a.risks.length, 0);
   const openActions = actionItems.filter((a) => a.status !== "done").length;
+  const flaggedCount = accounts.filter((a) => isRenewalAndVolumeRisk(a, TODAY)).length;
 
   const sortedAccounts = [...accounts].sort((a, b) => attentionScore(b) - attentionScore(a));
   const needsAttention = sortedAccounts.slice(0, 4);
@@ -48,6 +50,12 @@ export default function DashboardPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             {needsAttention.filter((a) => a.health === "critical" || a.health === "at_risk").length} accounts need attention today.
             You have {urgentActions.length} open actions due this week.
+            {flaggedCount > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">
+                <Zap className="h-3 w-3" />
+                {flaggedCount} renewal + volume alert{flaggedCount > 1 ? "s" : ""}
+              </span>
+            )}
           </p>
         </div>
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
@@ -122,7 +130,7 @@ export default function DashboardPage() {
             <div>
               <CardTitle>Accounts needing attention</CardTitle>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Ranked by renewal proximity, health gap, and open risks
+                Ranked by renewal proximity, health gap, and open risks · health assessed from Gmail, Slack, Jira
               </p>
             </div>
             <Link
@@ -137,23 +145,45 @@ export default function DashboardPage() {
             <ul className="divide-y">
               {needsAttention.map((a) => {
                 const days = daysUntil(a.renewalDate, TODAY);
+                const flagged = isRenewalAndVolumeRisk(a, TODAY);
+                const rationale = buildHealthRationale(a, TODAY);
+                const topReasons = rationale.filter((r) => r.severity === "critical" || r.severity === "warning").slice(0, 2);
                 return (
                   <li key={a.id}>
                     <Link
                       href={`/accounts/${a.id}`}
-                      className="flex items-center gap-4 py-3 transition-colors hover:bg-slate-50/80"
+                      className="flex items-start gap-4 py-3 transition-colors hover:bg-slate-50/80"
                     >
                       <AccountAvatar initials={a.initials} color={a.logoColor} />
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <p className="truncate text-sm font-semibold text-foreground">{a.name}</p>
                           <HealthPill status={a.health} />
+                          {flagged && (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700">
+                              <Zap className="h-2.5 w-2.5" />
+                              Renewal + usage
+                            </span>
+                          )}
                         </div>
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
                           {a.industry} · {a.segment} · {a.region}
                         </p>
+                        {topReasons.length > 0 && (
+                          <ul className="mt-1.5 space-y-0.5">
+                            {topReasons.map((r, i) => (
+                              <li key={i} className="flex items-start gap-1.5 text-xs">
+                                <span className={cn(
+                                  "mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full",
+                                  r.severity === "critical" ? "bg-rose-500" : "bg-amber-500"
+                                )} />
+                                <span className="text-muted-foreground leading-snug">{r.text}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                      <div className="hidden w-32 md:block">
+                      <div className="hidden w-32 shrink-0 md:block">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground">Health</span>
                           <span className="font-medium tabular-nums">{a.healthScore}</span>
@@ -172,18 +202,18 @@ export default function DashboardPage() {
                           }
                         />
                       </div>
-                      <div className="hidden text-right md:block">
+                      <div className="hidden shrink-0 text-right md:block">
                         <div className="text-sm font-semibold tabular-nums">{formatCurrency(a.arr)}</div>
                         <div
                           className={cn(
                             "mt-0.5 text-xs tabular-nums",
-                            days <= 60 ? "text-rose-600" : days <= 120 ? "text-amber-600" : "text-muted-foreground",
+                            days <= 42 ? "text-rose-600 font-medium" : days <= 90 ? "text-amber-600" : "text-muted-foreground",
                           )}
                         >
                           Renews {formatRelative(a.renewalDate, TODAY)}
                         </div>
                       </div>
-                      <ArrowUpRight className="hidden h-4 w-4 text-muted-foreground sm:block" />
+                      <ArrowUpRight className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
                     </Link>
                   </li>
                 );
@@ -241,7 +271,13 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>All accounts</CardTitle>
-          <p className="text-xs text-muted-foreground">Your full book — {accounts.length} accounts ({nespressoAccounts.length} Nespresso units grouped under NN HQ)</p>
+          <p className="text-xs text-muted-foreground">
+            Your full book — {accounts.length} accounts ({nespressoAccounts.length} Nespresso units grouped under NN HQ) ·{" "}
+            <span className="inline-flex items-center gap-0.5 text-rose-600">
+              <Zap className="h-3 w-3" />
+              = renewal within 6 weeks + usage ≥90%
+            </span>
+          </p>
         </CardHeader>
         <CardContent className="pt-2">
           <div className="overflow-x-auto">
@@ -255,52 +291,58 @@ export default function DashboardPage() {
                   <th className="py-2 pr-4 font-medium">Risks</th>
                   <th className="py-2 pr-4 font-medium">Usage</th>
                   <th className="py-2 pr-4 font-medium">Last touch</th>
-                  <th className="py-2 pr-4 font-medium">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {nonNespressoAccounts.map((a) => (
-                  <tr key={a.id} className="group cursor-pointer">
-                    <td className="py-3 pr-4">
-                      <Link href={`/accounts/${a.id}`} className="flex items-center gap-3">
-                        <AccountAvatar initials={a.initials} color={a.logoColor} size="sm" />
-                        <div className="min-w-0">
-                          <div className="truncate font-medium text-foreground group-hover:underline">{a.name}</div>
-                          <div className="truncate text-xs text-muted-foreground">{a.industry}</div>
+                {nonNespressoAccounts.map((a) => {
+                  const flagged = isRenewalAndVolumeRisk(a, TODAY);
+                  return (
+                    <tr key={a.id} className={cn("group cursor-pointer", flagged && "bg-rose-50/40")}>
+                      <td className="py-3 pr-4">
+                        <Link href={`/accounts/${a.id}`} className="flex items-center gap-3">
+                          <AccountAvatar initials={a.initials} color={a.logoColor} size="sm" />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <div className="truncate font-medium text-foreground group-hover:underline">{a.name}</div>
+                              {flagged && <span title="Renewal within 6 weeks and usage ≥90%"><Zap className="h-3 w-3 shrink-0 text-rose-600" /></span>}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">{a.industry}</div>
+                          </div>
+                        </Link>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <HealthPill status={a.health} />
+                      </td>
+                      <td className="py-3 pr-4 tabular-nums">{formatCurrency(a.arr)}</td>
+                      <td className="py-3 pr-4">
+                        <div className={cn("text-sm tabular-nums", flagged ? "font-semibold text-rose-600" : "")}>
+                          {formatRelative(a.renewalDate, TODAY)}
                         </div>
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-4">
-                      <HealthPill status={a.health} />
-                    </td>
-                    <td className="py-3 pr-4 tabular-nums">{formatCurrency(a.arr)}</td>
-                    <td className="py-3 pr-4">
-                      <div className="text-sm tabular-nums">{formatRelative(a.renewalDate, TODAY)}</div>
-                    </td>
-                    <td className="py-3 pr-4">
-                      {a.risks.length ? (
-                        <span className="inline-flex items-center gap-1 text-sm text-rose-700">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          {a.risks.length}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
-                      )}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-2">
-                        <Progress value={a.productUsage} className="h-1.5 w-20" />
-                        <span className="text-xs tabular-nums text-muted-foreground">{a.productUsage}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 pr-4 text-xs text-muted-foreground">
-                      {formatRelative(a.lastTouch, TODAY)}
-                    </td>
-                    <td className="py-3 pr-4 max-w-xs">
-                      <p className="truncate text-xs text-muted-foreground" title={a.notes}>{a.notes ?? "—"}</p>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="py-3 pr-4">
+                        {a.risks.length ? (
+                          <span className="inline-flex items-center gap-1 text-sm text-rose-700">
+                            <AlertTriangle className="h-3.5 w-3.5" />
+                            {a.risks.length}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <div className="flex items-center gap-2">
+                          <Progress value={a.productUsage} className="h-1.5 w-20" />
+                          <span className={cn("text-xs tabular-nums", a.productUsage >= 90 ? "font-semibold text-rose-600" : "text-muted-foreground")}>
+                            {a.productUsage}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 pr-4 text-xs text-muted-foreground">
+                        {formatRelative(a.lastTouch, TODAY)}
+                      </td>
+                    </tr>
+                  );
+                })}
                 <NespressoGroup accounts={nespressoAccounts} />
               </tbody>
             </table>
