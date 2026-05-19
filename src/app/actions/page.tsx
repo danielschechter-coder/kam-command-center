@@ -353,22 +353,40 @@ export default function ActionsPage() {
             {openItems.length === 0 && !addingNew && (
               <p className="py-12 text-center text-sm text-muted-foreground">No open actions.</p>
             )}
-            {openItems.map((a) => (
-              <ActionCard
-                key={a.id}
-                item={a}
-                editingId={editingId}
-                editTitle={editTitle}
-                setEditTitle={setEditTitle}
-                onStartEdit={() => startEdit(a)}
-                onSaveEdit={() => saveEdit(a.id)}
-                onCancelEdit={() => setEditingId(null)}
-                onResolve={() => resolve(a.id)}
-                onDelete={() => remove(a.id)}
-                showAccount={!selectedId}
-
-              />
-            ))}
+            {(() => {
+              const appItems = openItems.filter((a) => !a.url);
+              const importedItems = openItems.filter((a) => !!a.url);
+              const renderCard = (a: ActionItem) => (
+                <ActionCard
+                  key={a.id}
+                  item={a}
+                  editingId={editingId}
+                  editTitle={editTitle}
+                  setEditTitle={setEditTitle}
+                  onStartEdit={() => startEdit(a)}
+                  onSaveEdit={() => saveEdit(a.id)}
+                  onCancelEdit={() => setEditingId(null)}
+                  onResolve={() => resolve(a.id)}
+                  onDelete={() => remove(a.id)}
+                  showAccount={!selectedId}
+                />
+              );
+              return (
+                <>
+                  {appItems.map(renderCard)}
+                  {appItems.length > 0 && importedItems.length > 0 && (
+                    <div className="flex items-center gap-2 py-1">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
+                        Imported
+                      </span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                  )}
+                  {importedItems.map(renderCard)}
+                </>
+              );
+            })()}
           </div>
         </div>
 
