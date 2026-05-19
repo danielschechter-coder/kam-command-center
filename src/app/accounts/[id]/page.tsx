@@ -315,43 +315,69 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
                 <p className="text-sm text-muted-foreground">No actions yet for this account.</p>
               ) : (
                 <ul className="divide-y">
-                  {actions.map((a) => (
-                    <li key={a.id} className="flex items-start gap-4 py-3">
-                      <div
-                        className={cn(
-                          "mt-1 h-4 w-4 shrink-0 rounded-full ring-2 ring-inset",
-                          a.status === "done" ? "bg-emerald-500 ring-emerald-500" : "bg-white ring-slate-300",
-                        )}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className={cn("text-sm font-medium", a.status === "done" && "text-muted-foreground line-through")}>
-                            {a.title}
-                          </p>
-                          <span
-                            className={cn(
-                              "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset",
-                              priorityClasses[a.priority],
+                  {actions.map((a) => {
+                    const isHubSpot = a.url?.includes("hubspot.com");
+                    const isJira = a.url?.includes("atlassian.net");
+                    return (
+                      <li key={a.id} className="flex items-start gap-4 py-3">
+                        <div
+                          className={cn(
+                            "mt-1 h-4 w-4 shrink-0 rounded-full ring-2 ring-inset",
+                            a.status === "done" ? "bg-emerald-500 ring-emerald-500" : "bg-white ring-slate-300",
+                          )}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            {a.url ? (
+                              <a
+                                href={a.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                  "text-sm font-medium hover:underline",
+                                  a.status === "done" ? "text-muted-foreground line-through" : "text-foreground",
+                                )}
+                              >
+                                {a.title}
+                              </a>
+                            ) : (
+                              <p className={cn("text-sm font-medium", a.status === "done" && "text-muted-foreground line-through")}>
+                                {a.title}
+                              </p>
                             )}
-                          >
-                            {a.priority}
-                          </span>
+                            <div className="flex shrink-0 items-center gap-1.5">
+                              {isHubSpot && (
+                                <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-orange-100 text-orange-700">HS</span>
+                              )}
+                              {isJira && (
+                                <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-blue-100 text-blue-700">Jira</span>
+                              )}
+                              <span
+                                className={cn(
+                                  "rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset",
+                                  priorityClasses[a.priority],
+                                )}
+                              >
+                                {a.priority}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
+                          <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+                            <span
+                              className={cn(
+                                "rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset",
+                                statusClasses[a.status],
+                              )}
+                            >
+                              {statusLabel[a.status]}
+                            </span>
+                            <span>Due {formatRelative(a.dueDate, TODAY)}</span>
+                          </div>
                         </div>
-                        <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
-                        <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset",
-                              statusClasses[a.status],
-                            )}
-                          >
-                            {statusLabel[a.status]}
-                          </span>
-                          <span>Due {formatRelative(a.dueDate, TODAY)}</span>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </CardContent>
