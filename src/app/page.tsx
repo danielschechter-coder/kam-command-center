@@ -239,35 +239,61 @@ export default function DashboardPage() {
             <ul className="space-y-3">
               {urgentActions.map((a) => {
                 const days = daysUntil(a.dueDate, TODAY);
-                return (
-                  <li key={a.id}>
-                    <Link
-                      href={`/accounts/${a.accountId}`}
-                      className="block rounded-lg border bg-card p-3 transition-colors hover:bg-slate-50/80"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium leading-snug">{a.title}</p>
+                const isHubSpot = a.url?.includes("hubspot.com");
+                const isJira = a.url?.includes("atlassian.net");
+                const inner = (
+                  <>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-sm font-medium leading-snug">{a.title}</p>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {isHubSpot && (
+                          <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-orange-100 text-orange-700">HS</span>
+                        )}
+                        {isJira && (
+                          <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-blue-100 text-blue-700">Jira</span>
+                        )}
                         <span
                           className={cn(
-                            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset",
+                            "rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset",
                             priorityClasses[a.priority],
                           )}
                         >
                           {a.priority}
                         </span>
                       </div>
-                      <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="truncate">{a.accountName}</span>
-                        <span
-                          className={cn(
-                            "tabular-nums",
-                            days < 0 ? "text-rose-600" : days <= 2 ? "text-amber-600" : "",
-                          )}
-                        >
-                          Due {formatRelative(a.dueDate, TODAY)}
-                        </span>
-                      </div>
-                    </Link>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="truncate">{a.accountName}</span>
+                      <span
+                        className={cn(
+                          "tabular-nums",
+                          days < 0 ? "text-rose-600" : days <= 2 ? "text-amber-600" : "",
+                        )}
+                      >
+                        Due {formatRelative(a.dueDate, TODAY)}
+                      </span>
+                    </div>
+                  </>
+                );
+                return (
+                  <li key={a.id}>
+                    {a.url ? (
+                      <a
+                        href={a.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-lg border bg-card p-3 transition-colors hover:bg-slate-50/80"
+                      >
+                        {inner}
+                      </a>
+                    ) : (
+                      <Link
+                        href={`/accounts/${a.accountId}`}
+                        className="block rounded-lg border bg-card p-3 transition-colors hover:bg-slate-50/80"
+                      >
+                        {inner}
+                      </Link>
+                    )}
                   </li>
                 );
               })}

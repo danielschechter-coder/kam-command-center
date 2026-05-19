@@ -1620,6 +1620,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-05-22",
     owner: OWNER,
+    url: "https://parcelperform.atlassian.net/browse/CI-8209",
   },
   {
     id: "task-ck-renewal-prep",
@@ -1654,6 +1655,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2025-12-18",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/98454533390",
   },
   {
     id: "task-99119312304",
@@ -1665,6 +1667,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2025-12-22",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/99119312304",
   },
   {
     id: "task-99419676758",
@@ -1676,6 +1679,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2025-12-25",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/99419676758",
   },
   {
     id: "task-100618761618",
@@ -1687,6 +1691,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-11",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/100618761618",
   },
   {
     id: "task-100942858405",
@@ -1698,6 +1703,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-15",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/100942858405",
   },
   {
     id: "task-101380810882",
@@ -1709,6 +1715,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-19",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/101380810882",
   },
   {
     id: "task-101413617517",
@@ -1720,6 +1727,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-19",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/101413617517",
   },
   {
     id: "task-101599691362",
@@ -1731,6 +1739,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-22",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/101599691362",
   },
   {
     id: "task-101661334860",
@@ -1742,6 +1751,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-01-23",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/101661334860",
   },
   {
     id: "task-104927354509",
@@ -1753,6 +1763,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-02-26",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/104927354509",
   },
   {
     id: "task-105258996616",
@@ -1764,6 +1775,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-02",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/105258996616",
   },
   {
     id: "task-105761631091",
@@ -1775,6 +1787,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-08",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/105761631091",
   },
   {
     id: "task-105843965534",
@@ -1786,6 +1799,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-09",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/105843965534",
   },
   {
     id: "task-106018074945",
@@ -1797,6 +1811,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-12",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/106018074945",
   },
   {
     id: "task-106081406244",
@@ -1808,6 +1823,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-13",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/106081406244",
   },
   {
     id: "task-106190977924",
@@ -1819,6 +1835,7 @@ export const actionItems: ActionItem[] = [
     status: "open",
     dueDate: "2026-03-14",
     owner: OWNER,
+    url: "https://app.hubspot.com/contacts/2453247/engagement/106190977924",
   },
 ];
 

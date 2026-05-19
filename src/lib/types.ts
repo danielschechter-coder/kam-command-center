@@ -34,6 +34,7 @@ export interface ActionItem {
   status: ActionStatus;
   dueDate: string; // ISO date
   owner: string;
+  url?: string; // external deep-link (HubSpot task, Jira ticket, etc.)
 }
 
 export interface ActivityEvent {
