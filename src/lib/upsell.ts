@@ -184,6 +184,32 @@ export const MODULES: PPModule[] = [
     ],
     upsellAngle: "Boost conversion with AI-accurate delivery date promises.",
   },
+  {
+    id: 128,
+    name: "SLA Management",
+    shortName: "SLA",
+    tagline: "Carrier & end-to-end SLA rules",
+    tier: "premium",
+    color: { bg: "bg-teal-100", text: "text-teal-700", ring: "ring-teal-200", dot: "bg-teal-500" },
+    signalKeywords: [
+      "SLA",
+      "carrier SLA",
+      "E2E SLA",
+      "SLA rules",
+      "SLA update",
+      "service level",
+      "Horizon",
+      "transit time",
+      "on-time",
+      "delivery performance",
+      "SLA calculation",
+      "SLA breach",
+      "carrier commitment",
+      "delivery window",
+      "performance benchmark",
+    ],
+    upsellAngle: "Enforce carrier commitments and flag SLA breaches automatically.",
+  },
 ];
 
 export const MODULE_MAP: Record<number, PPModule> = Object.fromEntries(MODULES.map((m) => [m.id, m]));
