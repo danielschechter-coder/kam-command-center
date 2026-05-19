@@ -88,20 +88,24 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
   const flagged = isRenewalAndVolumeRisk(account, TODAY);
   const rationale = buildHealthRationale(account, TODAY);
 
-  // Jira tiers (exclude done)
+  // Jira clusters (exclude done) — grouped by workflow state, then priority + age
   const openTickets = account.jiraTickets.filter((t) => t.statusCategory !== "done");
-  const highTickets = [...openTickets]
-    .filter((t) => ["highest", "high"].includes((t.priority ?? "").toLowerCase()))
-    .sort(jiraSortAge);
-  const medTickets = [...openTickets]
-    .filter((t) => (t.priority ?? "").toLowerCase() === "medium")
-    .sort(jiraSortAge);
-  const lowTickets = [...openTickets]
-    .filter((t) => ["low", "lowest"].includes((t.priority ?? "").toLowerCase()))
-    .sort(jiraSortAge);
-  const unknownTickets = [...openTickets]
-    .filter((t) => !t.priority || !JIRA_PRIORITY_ORDER[(t.priority ?? "").toLowerCase()])
-    .sort(jiraSortAge);
+
+  function sortByPriorityThenAge<T extends { priority?: string; createdDate?: string }>(list: T[]): T[] {
+    return [...list].sort((a, b) => {
+      const pa = JIRA_PRIORITY_ORDER[(a.priority ?? "").toLowerCase()] ?? 99;
+      const pb = JIRA_PRIORITY_ORDER[(b.priority ?? "").toLowerCase()] ?? 99;
+      if (pa !== pb) return pa - pb;
+      return jiraSortAge(a, b);
+    });
+  }
+
+  const newTickets = sortByPriorityThenAge(
+    openTickets.filter((t) => t.statusCategory === "new" || !t.statusCategory),
+  );
+  const wipTickets = sortByPriorityThenAge(
+    openTickets.filter((t) => t.statusCategory === "indeterminate"),
+  );
 
   return (
     <div className="space-y-8">
@@ -393,7 +397,7 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
                 </CardTitle>
                 <span className="text-xs text-muted-foreground">
                   {openTickets.length > 0
-                    ? `${openTickets.length} open · sorted by priority then age`
+                    ? `${newTickets.length} open · ${wipTickets.length} in progress · sorted by priority then age`
                     : "no open tickets"}
                 </span>
               </div>
@@ -406,28 +410,20 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
                 </div>
               ) : (
                 <>
-                  {highTickets.length > 0 && (
+                  {newTickets.length > 0 && (
                     <JiraTierBlock
-                      label="Highest / High priority"
-                      tickets={highTickets}
-                      headerClass="text-rose-700 bg-rose-50"
-                      borderClass="border-rose-200"
-                    />
-                  )}
-                  {medTickets.length > 0 && (
-                    <JiraTierBlock
-                      label="Medium priority"
-                      tickets={medTickets}
+                      label="Open"
+                      tickets={newTickets}
                       headerClass="text-amber-700 bg-amber-50"
                       borderClass="border-amber-200"
                     />
                   )}
-                  {(lowTickets.length > 0 || unknownTickets.length > 0) && (
+                  {wipTickets.length > 0 && (
                     <JiraTierBlock
-                      label="Low / Lowest priority"
-                      tickets={[...lowTickets, ...unknownTickets]}
-                      headerClass="text-slate-500 bg-slate-50"
-                      borderClass="border-slate-200"
+                      label="In progress"
+                      tickets={wipTickets}
+                      headerClass="text-sky-700 bg-sky-50"
+                      borderClass="border-sky-200"
                     />
                   )}
                 </>
