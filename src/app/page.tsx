@@ -37,9 +37,17 @@ export default function DashboardPage() {
 
   const sortedAccounts = [...accounts].sort((a, b) => attentionScore(b) - attentionScore(a));
   const needsAttention = sortedAccounts.slice(0, 4);
+  // Sort: upcoming soonest first, then overdue by how late they are
   const urgentActions = [...actionItems]
     .filter((a) => a.status !== "done")
-    .sort((a, b) => daysUntil(a.dueDate, TODAY) - daysUntil(b.dueDate, TODAY))
+    .sort((a, b) => {
+      const da = daysUntil(a.dueDate, TODAY);
+      const db = daysUntil(b.dueDate, TODAY);
+      const futureA = da >= 0, futureB = db >= 0;
+      if (futureA && !futureB) return -1;
+      if (!futureA && futureB) return 1;
+      return da - db;
+    })
     .slice(0, 5);
 
   return (

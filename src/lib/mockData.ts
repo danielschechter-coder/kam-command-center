@@ -1598,6 +1598,52 @@ function ageStatus(dueDateISO: string): { priority: ActionItem["priority"] } {
 }
 
 export const actionItems: ActionItem[] = [
+  // ── Timely actions derived from live signals (added 2026-05-19) ────────────
+  {
+    id: "task-nuki-renewal",
+    accountId: "nuki",
+    accountName: "Nuki",
+    title: "Confirm Nuki renewal — contract expires Friday 22 May",
+    description: "PP contract (200k shipments/yr) ends 2026-05-22 in 3 days. Confirm renewal terms with Daniel Wolf (Graz) before the contract lapses.",
+    priority: "urgent",
+    status: "open",
+    dueDate: "2026-05-21",
+    owner: OWNER,
+  },
+  {
+    id: "task-puma-api-bug",
+    accountId: "puma",
+    accountName: "PUMA",
+    title: "PUMA CI-8209 — critical API error needs escalation",
+    description: "Open since 2026-04-22, assigned to Tsani (CTOO). Confirm investigation status before QBR on 26 May.",
+    priority: "urgent",
+    status: "open",
+    dueDate: "2026-05-22",
+    owner: OWNER,
+  },
+  {
+    id: "task-ck-renewal-prep",
+    accountId: "charles-keith",
+    accountName: "Charles & Keith Group",
+    title: "Start C&K renewal prep — contract ends 2026-07-18",
+    description: "60 days to renewal. 5 open Jira tickets (Skyquick invoice cluster) and 93.8% volume usage. Prepare commercial brief and schedule QBR.",
+    priority: "high",
+    status: "open",
+    dueDate: "2026-06-06",
+    owner: OWNER,
+  },
+  {
+    id: "task-sfs-renewal-prep",
+    accountId: "sfs",
+    accountName: "SFS",
+    title: "SFS renewal in 34 days — schedule exec conversation",
+    description: "Contract ends 2026-06-22. Last customer login was January. Low engagement risk — set up a call with Harald Senn before end of May.",
+    priority: "high",
+    status: "open",
+    dueDate: "2026-05-29",
+    owner: OWNER,
+  },
+  // ── HubSpot open tasks (owner: Daniel Schechter, as of 2026-05-19) ─────────
   {
     id: "task-98454533390",
     accountId: "puma",
