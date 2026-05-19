@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowUpRight, CalendarClock, DollarSign, ListChecks, ShieldAlert, Zap } from "lucide-react";
+import { ArrowUpRight, CalendarClock, DollarSign, ListChecks, ShieldAlert, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/stat-card";
 import { HealthPill } from "@/components/health-pill";
 import { AccountAvatar } from "@/components/account-avatar";
 import { SourcePill } from "@/components/source-pill";
-import { NespressoGroup } from "@/components/nespresso-group";
+import { AccountsTable } from "@/components/accounts-table";
 import { accounts, actionItems, sourceStatus } from "@/lib/mockData";
 import { cn, daysUntil, formatCurrency, formatRelative, priorityClasses } from "@/lib/utils";
 import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 function attentionScore(a: (typeof accounts)[number]) {
   const days = daysUntil(a.renewalDate, TODAY);
@@ -59,7 +59,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="hidden text-right text-xs text-muted-foreground sm:block">
-          <div>Wednesday, May 13, 2026</div>
+          <div>Monday, May 19, 2026</div>
           <div className="mt-0.5">Showing your book of business</div>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
           );
         })}
         <span className="ml-auto text-xs text-muted-foreground">
-          Snapshot generated 2026-05-13 · static, not live
+          Snapshot generated 2026-05-19 · static, not live
         </span>
       </div>
 
@@ -272,7 +272,7 @@ export default function DashboardPage() {
         <CardHeader className="pb-2">
           <CardTitle>All accounts</CardTitle>
           <p className="text-xs text-muted-foreground">
-            Your full book — {accounts.length} accounts ({nespressoAccounts.length} Nespresso units grouped under NN HQ) ·{" "}
+            Your full book — {accounts.length} accounts · click column headers to sort ·{" "}
             <span className="inline-flex items-center gap-0.5 text-rose-600">
               <Zap className="h-3 w-3" />
               = renewal within 6 weeks + usage ≥90%
@@ -280,73 +280,7 @@ export default function DashboardPage() {
           </p>
         </CardHeader>
         <CardContent className="pt-2">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="py-2 pr-4 font-medium">Account</th>
-                  <th className="py-2 pr-4 font-medium">Health</th>
-                  <th className="py-2 pr-4 font-medium">ARR</th>
-                  <th className="py-2 pr-4 font-medium">Renewal</th>
-                  <th className="py-2 pr-4 font-medium">Risks</th>
-                  <th className="py-2 pr-4 font-medium">Usage</th>
-                  <th className="py-2 pr-4 font-medium">Last touch</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {nonNespressoAccounts.map((a) => {
-                  const flagged = isRenewalAndVolumeRisk(a, TODAY);
-                  return (
-                    <tr key={a.id} className={cn("group cursor-pointer", flagged && "bg-rose-50/40")}>
-                      <td className="py-3 pr-4">
-                        <Link href={`/accounts/${a.id}`} className="flex items-center gap-3">
-                          <AccountAvatar initials={a.initials} color={a.logoColor} size="sm" />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <div className="truncate font-medium text-foreground group-hover:underline">{a.name}</div>
-                              {flagged && <span title="Renewal within 6 weeks and usage ≥90%"><Zap className="h-3 w-3 shrink-0 text-rose-600" /></span>}
-                            </div>
-                            <div className="truncate text-xs text-muted-foreground">{a.industry}</div>
-                          </div>
-                        </Link>
-                      </td>
-                      <td className="py-3 pr-4">
-                        <HealthPill status={a.health} />
-                      </td>
-                      <td className="py-3 pr-4 tabular-nums">{formatCurrency(a.arr)}</td>
-                      <td className="py-3 pr-4">
-                        <div className={cn("text-sm tabular-nums", flagged ? "font-semibold text-rose-600" : "")}>
-                          {formatRelative(a.renewalDate, TODAY)}
-                        </div>
-                      </td>
-                      <td className="py-3 pr-4">
-                        {a.risks.length ? (
-                          <span className="inline-flex items-center gap-1 text-sm text-rose-700">
-                            <AlertTriangle className="h-3.5 w-3.5" />
-                            {a.risks.length}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="flex items-center gap-2">
-                          <Progress value={a.productUsage} className="h-1.5 w-20" />
-                          <span className={cn("text-xs tabular-nums", a.productUsage >= 90 ? "font-semibold text-rose-600" : "text-muted-foreground")}>
-                            {a.productUsage}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 pr-4 text-xs text-muted-foreground">
-                        {formatRelative(a.lastTouch, TODAY)}
-                      </td>
-                    </tr>
-                  );
-                })}
-                <NespressoGroup accounts={nespressoAccounts} />
-              </tbody>
-            </table>
-          </div>
+          <AccountsTable accounts={nonNespressoAccounts} nespressoAccounts={nespressoAccounts} />
         </CardContent>
       </Card>
     </div>

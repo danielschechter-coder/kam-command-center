@@ -5,7 +5,7 @@ import { actionItems } from "@/lib/mockData";
 import { cn, daysUntil, formatRelative, priorityClasses, statusClasses, statusLabel } from "@/lib/utils";
 import type { ActionStatus } from "@/lib/types";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 } as const;
 

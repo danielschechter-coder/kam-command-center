@@ -19,7 +19,7 @@ import { AccountAvatar } from "@/components/account-avatar";
 import { accounts, getBrief } from "@/lib/mockData";
 import { cn, formatCurrency, formatDate, formatRelative } from "@/lib/utils";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 export function generateStaticParams() {
   return accounts.flatMap((a) => a.briefs.map((b) => ({ id: b.id })));

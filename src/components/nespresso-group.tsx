@@ -10,7 +10,7 @@ import type { Account, HealthStatus } from "@/lib/types";
 import { cn, formatCurrency, formatRelative } from "@/lib/utils";
 import { isRenewalAndVolumeRisk } from "@/lib/health";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 const HEALTH_RANK: Record<HealthStatus, number> = { critical: 0, at_risk: 1, watch: 2, healthy: 3 };
 

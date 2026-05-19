@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn, daysUntil, formatCurrency, formatDate, formatRelative } from "@/lib/utils";
 import type { Account } from "@/lib/types";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 export function SignalsPanel({ account }: { account: Account }) {
   const hasSlack = account.slackSignals.length > 0;

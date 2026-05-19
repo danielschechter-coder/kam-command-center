@@ -37,7 +37,7 @@ import {
 import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
 import { accounts, getActionsForAccount } from "@/lib/mockData";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 export function generateStaticParams() {
   return accounts.map((a) => ({ id: a.id }));

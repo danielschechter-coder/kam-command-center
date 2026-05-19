@@ -7,7 +7,7 @@ import { AccountAvatar } from "@/components/account-avatar";
 import { getAllBriefs } from "@/lib/mockData";
 import { cn, daysUntil, formatDate, formatRelative } from "@/lib/utils";
 
-const TODAY = new Date("2026-05-13");
+const TODAY = new Date("2026-05-19");
 
 export default function BriefsIndexPage() {
   const briefs = getAllBriefs().sort(
