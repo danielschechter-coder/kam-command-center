@@ -348,35 +348,66 @@ export interface CoverageCell {
 
 export interface ModuleCoverageRow {
   account: Account;
+  subAccountCount?: number; // set when multiple accounts are grouped into one row
   cells: Record<ModuleId, CoverageCell>;
 }
 
+// Accounts whose id is "nespresso" or starts with "nespresso-" are grouped together.
+function groupKey(account: Account): string {
+  if (account.id === "nespresso" || account.id.startsWith("nespresso-")) return "nespresso";
+  return account.id;
+}
+
 export function computeModuleCoverage(accounts: Account[]): ModuleCoverageRow[] {
-  return accounts
-    .filter((a) => a.product)
-    .map((account) => {
-      const rawSignals = collectSignals(account);
-      const subscribedModules = new Set(account.product!.ppModules);
+  const filtered = accounts.filter((a) => a.product);
 
-      const cells: Record<ModuleId, CoverageCell> = {} as Record<ModuleId, CoverageCell>;
-      for (const module of MODULES) {
-        const subscribed = subscribedModules.has(module.id);
-        const signalScore = subscribed
-          ? 0
-          : rawSignals.map((s) => scoreText(s.text, module)).reduce((a, b) => a + b, 0);
+  // Group accounts by key (nespresso family → one row)
+  const groups = new Map<string, Account[]>();
+  for (const a of filtered) {
+    const key = groupKey(a);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(a);
+  }
 
-        const tier: CoverageCell["tier"] = subscribed
-          ? "subscribed"
-          : signalScore >= 12
-            ? "hot"
-            : signalScore >= 5
-              ? "warm"
-              : signalScore > 0
-                ? "cool"
-                : "none";
+  const rows: ModuleCoverageRow[] = [];
 
-        cells[module.id] = { subscribed, signalScore, tier };
-      }
-      return { account, cells };
+  for (const [key, group] of groups) {
+    // Pick representative: prefer the account whose id === key (the "parent"), else first
+    const rep = group.find((a) => a.id === key) ?? group[0];
+    const allSignals = group.flatMap(collectSignals);
+    const subscribedModuleIds = new Set(group.flatMap((a) => a.product!.ppModules));
+
+    const cells: Record<ModuleId, CoverageCell> = {} as Record<ModuleId, CoverageCell>;
+    for (const module of MODULES) {
+      const subscribed = subscribedModuleIds.has(module.id);
+      const signalScore = subscribed
+        ? 0
+        : allSignals.map((s) => scoreText(s.text, module)).reduce((a, b) => a + b, 0);
+
+      const tier: CoverageCell["tier"] = subscribed
+        ? "subscribed"
+        : signalScore >= 12
+          ? "hot"
+          : signalScore >= 5
+            ? "warm"
+            : signalScore > 0
+              ? "cool"
+              : "none";
+
+      cells[module.id] = { subscribed, signalScore, tier };
+    }
+
+    const totalArr = group.reduce((sum, a) => sum + a.arr, 0);
+    const displayAccount: Account = group.length > 1
+      ? { ...rep, name: rep.name.split(" ")[0], arr: totalArr }
+      : rep;
+
+    rows.push({
+      account: displayAccount,
+      subAccountCount: group.length > 1 ? group.length : undefined,
+      cells,
     });
+  }
+
+  return rows;
 }

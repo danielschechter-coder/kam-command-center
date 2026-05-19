@@ -177,13 +177,20 @@ function CoverageMatrix({ rows, modules }: { rows: ModuleCoverageRow[]; modules:
           </tr>
         </thead>
         <tbody className="divide-y">
-          {rows.map(({ account, cells }) => (
+          {rows.map(({ account, cells, subAccountCount }) => (
             <tr key={account.id} className="hover:bg-slate-50/60">
               <td className="sticky left-0 z-10 bg-card px-4 py-2.5">
                 <Link href={`/accounts/${account.id}`} className="flex items-center gap-2 hover:underline">
                   <AccountAvatar initials={account.initials} color={account.logoColor} size="sm" />
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-medium">{account.name}</p>
+                    <p className="truncate text-xs font-medium">
+                      {account.name}
+                      {subAccountCount && (
+                        <span className="ml-1.5 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground">
+                          {subAccountCount} markets
+                        </span>
+                      )}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">{formatCurrency(account.arr)}</p>
                   </div>
                 </Link>
