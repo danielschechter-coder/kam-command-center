@@ -35,6 +35,7 @@ export interface ActionItem {
   dueDate: string; // ISO date
   owner: string;
   url?: string; // external deep-link (HubSpot task, Jira ticket, etc.)
+  createdAt?: string; // ISO date — set only for items created in the app
 }
 
 export interface ActivityEvent {

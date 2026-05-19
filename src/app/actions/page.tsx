@@ -47,6 +47,7 @@ interface CardProps {
   onResolve?: () => void;
   onReopen?: () => void;
   onDelete: () => void;
+  onUpdateDueDate: (date: string) => void;
   showAccount: boolean;
   resolved?: boolean;
 }
@@ -62,11 +63,13 @@ function ActionCard({
   onResolve,
   onReopen,
   onDelete,
+  onUpdateDueDate,
   showAccount,
   resolved,
 }: CardProps) {
   const editing = editingId === item.id;
   const ref = useRef<HTMLInputElement>(null);
+  const [editingDue, setEditingDue] = useState(false);
 
   useEffect(() => {
     if (editing) ref.current?.focus();
@@ -168,18 +171,41 @@ function ActionCard({
         {showAccount && (
           <span className="text-muted-foreground">{item.accountName}</span>
         )}
-        <span
-          className={cn(
-            "ml-auto tabular-nums",
-            !resolved && item.dueDate
-              ? formatRelative(item.dueDate, TODAY).includes("ago")
-                ? "text-rose-600"
-                : "text-muted-foreground"
-              : "text-muted-foreground",
+        {item.createdAt && (
+          <span className="text-muted-foreground/60">
+            Created {formatRelative(item.createdAt, TODAY)}
+          </span>
+        )}
+        <div className="ml-auto">
+          {resolved ? (
+            <span className="tabular-nums text-muted-foreground">Resolved</span>
+          ) : editingDue ? (
+            <input
+              type="date"
+              defaultValue={item.dueDate}
+              autoFocus
+              className="rounded border px-1 py-0.5 text-xs outline-none ring-1 ring-ring"
+              onBlur={(e) => { onUpdateDueDate(e.target.value); setEditingDue(false); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { onUpdateDueDate((e.target as HTMLInputElement).value); setEditingDue(false); }
+                if (e.key === "Escape") setEditingDue(false);
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => !resolved && setEditingDue(true)}
+              title="Click to change due date"
+              className={cn(
+                "tabular-nums hover:underline",
+                item.dueDate && formatRelative(item.dueDate, TODAY).includes("ago")
+                  ? "text-rose-600"
+                  : "text-muted-foreground",
+              )}
+            >
+              Due {formatRelative(item.dueDate, TODAY)}
+            </button>
           )}
-        >
-          {resolved ? `Resolved` : `Due ${formatRelative(item.dueDate, TODAY)}`}
-        </span>
+        </div>
       </div>
     </div>
   );
@@ -194,6 +220,7 @@ export default function ActionsPage() {
   const [editTitle, setEditTitle] = useState("");
   const [addingNew, setAddingNew] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newDueDate, setNewDueDate] = useState(TODAY.toISOString().split("T")[0]);
   const newInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -224,6 +251,10 @@ export default function ActionsPage() {
     setItems((prev) => prev.map((a) => (a.id === id ? { ...a, title: editTitle } : a)));
     setEditingId(null);
   }
+  function updateDueDate(id: string, date: string) {
+    if (!date) return;
+    setItems((prev) => prev.map((a) => (a.id === id ? { ...a, dueDate: date } : a)));
+  }
   function addItem() {
     const title = newTitle.trim();
     if (!title) { setAddingNew(false); return; }
@@ -238,12 +269,14 @@ export default function ActionsPage() {
         description: "",
         priority: "medium" as const,
         status: "open" as const,
-        dueDate: TODAY.toISOString().split("T")[0],
+        dueDate: newDueDate || TODAY.toISOString().split("T")[0],
+        createdAt: TODAY.toISOString().split("T")[0],
         owner: "Daniel Schechter",
       },
       ...prev,
     ]);
     setNewTitle("");
+    setNewDueDate(TODAY.toISOString().split("T")[0]);
     setAddingNew(false);
   }
 
@@ -322,7 +355,7 @@ export default function ActionsPage() {
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {addingNew && (
-              <div className="rounded-lg border bg-card p-3 shadow-sm">
+              <div className="rounded-lg border bg-card p-3 shadow-sm space-y-2">
                 <input
                   ref={newInputRef}
                   value={newTitle}
@@ -334,7 +367,16 @@ export default function ActionsPage() {
                   placeholder="Action title…"
                   className="w-full bg-transparent text-sm outline-none"
                 />
-                <div className="mt-2 flex gap-2">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground">Due</label>
+                  <input
+                    type="date"
+                    value={newDueDate}
+                    onChange={(e) => setNewDueDate(e.target.value)}
+                    className="rounded border px-1.5 py-0.5 text-xs outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div className="flex gap-2">
                   <button
                     onClick={addItem}
                     className="rounded px-2 py-1 text-xs font-medium bg-slate-900 text-white hover:bg-slate-700"
@@ -342,7 +384,7 @@ export default function ActionsPage() {
                     Save
                   </button>
                   <button
-                    onClick={() => { setAddingNew(false); setNewTitle(""); }}
+                    onClick={() => { setAddingNew(false); setNewTitle(""); setNewDueDate(TODAY.toISOString().split("T")[0]); }}
                     className="rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                   >
                     Cancel
@@ -368,6 +410,7 @@ export default function ActionsPage() {
                   onCancelEdit={() => setEditingId(null)}
                   onResolve={() => resolve(a.id)}
                   onDelete={() => remove(a.id)}
+                  onUpdateDueDate={(date) => updateDueDate(a.id, date)}
                   showAccount={!selectedId}
                 />
               );
@@ -411,8 +454,8 @@ export default function ActionsPage() {
                 onCancelEdit={() => setEditingId(null)}
                 onReopen={() => reopen(a.id)}
                 onDelete={() => remove(a.id)}
+                onUpdateDueDate={(date) => updateDueDate(a.id, date)}
                 showAccount={!selectedId}
-
                 resolved
               />
             ))}
