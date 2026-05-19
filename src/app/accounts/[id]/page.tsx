@@ -6,10 +6,12 @@ import {
   CalendarClock,
   CheckCircle2,
   CircleAlert,
+  ExternalLink,
   Mail,
   MessageSquare,
   PhoneCall,
   Sparkles,
+  Ticket,
   TrendingUp,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +38,118 @@ const TODAY = new Date("2026-05-13");
 
 export function generateStaticParams() {
   return accounts.map((a) => ({ id: a.id }));
+}
+
+const JIRA_PRIORITY_ORDER: Record<string, number> = {
+  highest: 1,
+  high: 2,
+  medium: 3,
+  low: 4,
+  lowest: 5,
+};
+
+function jiraSort(a: { priority?: string; createdDate?: string }, b: { priority?: string; createdDate?: string }) {
+  const pa = JIRA_PRIORITY_ORDER[(a.priority ?? "").toLowerCase()] ?? 6;
+  const pb = JIRA_PRIORITY_ORDER[(b.priority ?? "").toLowerCase()] ?? 6;
+  if (pa !== pb) return pa - pb;
+  // older ticket = higher urgency = sort first
+  const da = a.createdDate ? new Date(a.createdDate).getTime() : Infinity;
+  const db = b.createdDate ? new Date(b.createdDate).getTime() : Infinity;
+  return da - db;
+}
+
+function JiraTicketsCard({ account }: { account: ReturnType<typeof accounts.find> & object }) {
+  if (!account) return null;
+  const sorted = [...account.jiraTickets].sort(jiraSort);
+
+  const statusTone = (cat?: string) =>
+    cat === "done"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : cat === "indeterminate"
+        ? "bg-sky-50 text-sky-700 ring-sky-200"
+        : "bg-amber-50 text-amber-700 ring-amber-200";
+
+  const priorityTone = (p?: string) => {
+    const l = (p ?? "").toLowerCase();
+    if (l === "highest" || l === "high") return "bg-rose-50 text-rose-700 ring-rose-200";
+    if (l === "medium") return "bg-amber-50 text-amber-700 ring-amber-200";
+    return "bg-slate-50 text-slate-600 ring-slate-200";
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Ticket className="h-4 w-4 text-sky-600" />
+            Jira tickets
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">
+            {sorted.length > 0
+              ? `${sorted.length} ticket${sorted.length === 1 ? "" : "s"} · sorted by priority & age`
+              : "no open tickets"}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-2">
+        {sorted.length === 0 ? (
+          <div className="flex items-center gap-2 rounded-lg border border-dashed bg-slate-50/60 p-4 text-sm text-muted-foreground">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            No active Jira tickets for this account.
+          </div>
+        ) : (
+          <ul className="divide-y">
+            {sorted.map((t) => {
+              const daysOpen = t.createdDate
+                ? Math.round((TODAY.getTime() - new Date(t.createdDate).getTime()) / 86_400_000)
+                : null;
+              return (
+                <li key={t.key} className="py-3">
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <a
+                          href={t.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700 hover:underline"
+                        >
+                          {t.key}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                        {t.priority ? (
+                          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset", priorityTone(t.priority))}>
+                            {t.priority}
+                          </span>
+                        ) : null}
+                        {t.status ? (
+                          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset", statusTone(t.statusCategory))}>
+                            {t.status}
+                          </span>
+                        ) : null}
+                        {daysOpen !== null ? (
+                          <span className={cn("text-xs tabular-nums", daysOpen > 60 ? "text-rose-600 font-medium" : "text-muted-foreground")}>
+                            Open {daysOpen}d
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-1 text-sm leading-snug">{t.title}</p>
+                      {t.context ? <p className="mt-0.5 text-xs text-muted-foreground">{t.context}</p> : null}
+                      <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        {t.assignee ? <span>Assignee: <span className="text-foreground">{t.assignee}</span></span> : null}
+                        {t.reporter ? <span>Reporter: <span className="text-foreground">{t.reporter}</span></span> : null}
+                        {t.updatedDate ? <span>Updated {formatRelative(t.updatedDate, TODAY)}</span> : null}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 const activityIcon = {
@@ -252,6 +366,8 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               )}
             </CardContent>
           </Card>
+
+          <JiraTicketsCard account={account} />
 
           <Card>
             <CardHeader className="pb-2">

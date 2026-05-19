@@ -6,6 +6,7 @@ import { StatCard } from "@/components/stat-card";
 import { HealthPill } from "@/components/health-pill";
 import { AccountAvatar } from "@/components/account-avatar";
 import { SourcePill } from "@/components/source-pill";
+import { NespressoGroup } from "@/components/nespresso-group";
 import { accounts, actionItems, sourceStatus } from "@/lib/mockData";
 import { cn, daysUntil, formatCurrency, formatRelative, priorityClasses } from "@/lib/utils";
 
@@ -18,6 +19,9 @@ function attentionScore(a: (typeof accounts)[number]) {
   const riskWeight = a.risks.reduce((s, r) => s + (r.severity === "high" ? 30 : r.severity === "medium" ? 15 : 5), 0);
   return renewalUrgency + healthGap + riskWeight;
 }
+
+const nespressoAccounts = accounts.filter((a) => a.id.startsWith("nespresso"));
+const nonNespressoAccounts = accounts.filter((a) => !a.id.startsWith("nespresso"));
 
 export default function DashboardPage() {
   const totalArr = accounts.reduce((s, a) => s + a.arr, 0);
@@ -237,7 +241,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle>All accounts</CardTitle>
-          <p className="text-xs text-muted-foreground">Your full book — {accounts.length} accounts</p>
+          <p className="text-xs text-muted-foreground">Your full book — {accounts.length} accounts ({nespressoAccounts.length} Nespresso units grouped under NN HQ)</p>
         </CardHeader>
         <CardContent className="pt-2">
           <div className="overflow-x-auto">
@@ -251,10 +255,11 @@ export default function DashboardPage() {
                   <th className="py-2 pr-4 font-medium">Risks</th>
                   <th className="py-2 pr-4 font-medium">Usage</th>
                   <th className="py-2 pr-4 font-medium">Last touch</th>
+                  <th className="py-2 pr-4 font-medium">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {accounts.map((a) => (
+                {nonNespressoAccounts.map((a) => (
                   <tr key={a.id} className="group cursor-pointer">
                     <td className="py-3 pr-4">
                       <Link href={`/accounts/${a.id}`} className="flex items-center gap-3">
@@ -291,8 +296,12 @@ export default function DashboardPage() {
                     <td className="py-3 pr-4 text-xs text-muted-foreground">
                       {formatRelative(a.lastTouch, TODAY)}
                     </td>
+                    <td className="py-3 pr-4 max-w-xs">
+                      <p className="truncate text-xs text-muted-foreground" title={a.notes}>{a.notes ?? "—"}</p>
+                    </td>
                   </tr>
                 ))}
+                <NespressoGroup accounts={nespressoAccounts} />
               </tbody>
             </table>
           </div>

@@ -19,11 +19,92 @@ export function SignalsPanel({ account }: { account: Account }) {
         <CardTitle className="flex items-center justify-between">
           <span>Signals across connected sources</span>
           <span className="text-xs font-normal text-muted-foreground">
-            HubSpot · Parcel Perform · Slack · Jira · Gmail
+            Gmail · Slack · Parcel Perform · Jira
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5 pt-2">
+        {/* Gmail — highest priority */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-rose-700">
+              <Mail className="h-3.5 w-3.5" />
+              Gmail
+              <span className="ml-1 rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
+                live
+              </span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {account.emailThreads.length > 0
+                ? `${account.emailThreads.length} recent thread${account.emailThreads.length === 1 ? "" : "s"}`
+                : "no recent threads"}
+            </span>
+          </div>
+          {account.emailThreads.length > 0 ? (
+            <ul className="space-y-2">
+              {account.emailThreads.map((e) => (
+                <li key={e.id} className="rounded-lg border bg-card p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium leading-snug">{e.subject}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        <span className="text-foreground">{e.from}</span>
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">{e.preview}</p>
+                    </div>
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{formatRelative(e.date, TODAY)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="rounded-lg border border-dashed bg-slate-50/60 p-3 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                No customer email threads in the last 60 days.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Slack */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-violet-700">
+              <Hash className="h-3.5 w-3.5" />
+              Slack
+              {account.slackChannel ? (
+                <span className="ml-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
+                  {account.slackChannel}
+                </span>
+              ) : null}
+            </span>
+            <span className="text-xs text-muted-foreground">{hasSlack ? `${account.slackSignals.length} recent` : "no recent signals"}</span>
+          </div>
+          {hasSlack ? (
+            <ul className="space-y-2">
+              {account.slackSignals.map((s) => (
+                <li key={s.id} className="rounded-lg border bg-card p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm leading-relaxed">{s.summary}</p>
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                      {formatRelative(s.date, TODAY)}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{s.author}</span> in {s.channel}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="rounded-lg border border-dashed bg-slate-50/60 p-3 text-sm text-muted-foreground">
+              No recent Slack mentions for this account.
+            </div>
+          )}
+        </div>
+
+        {/* Parcel Perform */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-700">
@@ -166,42 +247,7 @@ export function SignalsPanel({ account }: { account: Account }) {
           )}
         </div>
 
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-violet-700">
-              <Hash className="h-3.5 w-3.5" />
-              Slack
-              {account.slackChannel ? (
-                <span className="ml-1 rounded-full bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 ring-1 ring-inset ring-violet-200">
-                  {account.slackChannel}
-                </span>
-              ) : null}
-            </span>
-            <span className="text-xs text-muted-foreground">{hasSlack ? `${account.slackSignals.length} recent` : "no recent signals"}</span>
-          </div>
-          {hasSlack ? (
-            <ul className="space-y-2">
-              {account.slackSignals.map((s) => (
-                <li key={s.id} className="rounded-lg border bg-card p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm leading-relaxed">{s.summary}</p>
-                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                      {formatRelative(s.date, TODAY)}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">{s.author}</span> in {s.channel}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="rounded-lg border border-dashed bg-slate-50/60 p-3 text-sm text-muted-foreground">
-              No recent Slack mentions for this account.
-            </div>
-          )}
-        </div>
-
+        {/* Jira */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-sky-700">
@@ -267,47 +313,6 @@ export function SignalsPanel({ account }: { account: Account }) {
           )}
         </div>
 
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-rose-700">
-              <Mail className="h-3.5 w-3.5" />
-              Gmail
-              <span className="ml-1 rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
-                live
-              </span>
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {account.emailThreads.length > 0
-                ? `${account.emailThreads.length} recent thread${account.emailThreads.length === 1 ? "" : "s"}`
-                : "no recent threads"}
-            </span>
-          </div>
-          {account.emailThreads.length > 0 ? (
-            <ul className="space-y-2">
-              {account.emailThreads.map((e) => (
-                <li key={e.id} className="rounded-lg border bg-card p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium leading-snug">{e.subject}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        <span className="text-foreground">{e.from}</span>
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">{e.preview}</p>
-                    </div>
-                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{formatRelative(e.date, TODAY)}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="rounded-lg border border-dashed bg-slate-50/60 p-3 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 shrink-0" />
-                No customer email threads in the last 60 days.
-              </p>
-            </div>
-          )}
-        </div>
       </CardContent>
     </Card>
   );
