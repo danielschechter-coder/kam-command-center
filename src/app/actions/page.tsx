@@ -213,8 +213,16 @@ function ActionCard({
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
+const STORAGE_KEY = "kam-action-items-v1";
+
 export default function ActionsPage() {
-  const [items, setItems] = useState<ActionItem[]>(() => actionItems.map((a) => ({ ...a })));
+  const [items, setItems] = useState<ActionItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved) as ActionItem[];
+    } catch {}
+    return actionItems.map((a) => ({ ...a }));
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -226,6 +234,13 @@ export default function ActionsPage() {
   useEffect(() => {
     if (addingNew) newInputRef.current?.focus();
   }, [addingNew]);
+
+  // Persist all item changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {}
+  }, [items]);
 
   const filtered = selectedId
     ? items.filter((a) => normalizeId(a.accountId) === selectedId)
