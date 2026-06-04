@@ -89,7 +89,8 @@ export function AccountsTable({
   }
 
   const filtered = useMemo(() => {
-    let base = accounts;
+    // When a preset is active, include all accounts (nespresso too) so counts match the stat cards
+    let base = preset ? [...accounts, ...nespressoAccounts] : accounts;
     // Apply preset filter
     if (preset === "renewals") {
       base = base.filter((a) => { const d = daysUntil(a.renewalDate, TODAY); return d >= 0 && d <= 90; });
@@ -105,7 +106,7 @@ export function AccountsTable({
       a.segment.toLowerCase().includes(q),
     );
     return sortAccounts(base, sortKey, sortDir);
-  }, [accounts, query, preset, sortKey, sortDir]);
+  }, [accounts, nespressoAccounts, query, preset, sortKey, sortDir]);
 
   const showNespresso = !query.trim() && !preset;
 
