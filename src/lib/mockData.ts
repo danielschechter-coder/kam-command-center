@@ -361,7 +361,7 @@ const raw: Raw[] = [
     score: 0,
     atRisk: false,
     lastTouch: "2026-03-10",
-    notes: "Quiet account (~63 days since last touch). Only 8 contacts — concentration risk. Re-establish sponsor before March anniversary.",
+    notes: "3-year renewal signed (year 1 of 3, €25,389/yr) — new term runs 2026-06-22 to 2029-06-22. Only 8 contacts — concentration risk. Keep executive sponsor engaged.",
   },
   {
     id: "waterdrop-at",
@@ -681,7 +681,7 @@ const raw: Raw[] = [
     score: 0,
     atRisk: false,
     lastTouch: "2026-04-24",
-    notes: "Open BDM-to-KAM handover for 2026-2027 renewal. CEO is reachable and engaged.",
+    notes: "Tier upgraded to 1M on 2026-04-15 (was on smaller plan). Usage shows ~0% against new 1M contract — expected given the plan changed just weeks ago. Monitor ramp-up. CEO reachable and engaged.",
     contactList: [
       { name: "Johannes Humpert", title: "CEO & Managing Director", email: "johannes.humpert@zenfulfillment.com", isExecutiveSponsor: true },
       { name: "Ievgen Demchenko", title: "CTO", email: "ievgen.demchenko@zenfulfillment.com", isChampion: true },
@@ -1273,49 +1273,64 @@ attachRealEmails();
 const ppAdmin = (slug: string) => `https://admin.parcelperform.com/merchant/${slug}/`;
 
 const ppDataById: Record<string, ProductData> = {
-  puma: { ppOrgId: 5438, ppSlug: "pf7fc5bf378", ppName: "PUMA Europe GmbH", contractedVolumeAnnual: 6_000_000, ppUsers: 25, ppContractStart: "2026-02-28", ppContractEnd: "2028-02-27", ppModules: [1, 2, 4], adminUrl: ppAdmin("pf7fc5bf378"), country: "US", organizationType: "enterprise" },
+  // Returns confirmed: CI-7910/8113/8296 Return Overview & report tickets; Slack RMA webhooks; Gmail withdrawal button
+  puma: { ppOrgId: 5438, ppSlug: "pf7fc5bf378", ppName: "PUMA Europe GmbH", contractedVolumeAnnual: 6_000_000, ppUsers: 25, ppContractStart: "2026-02-28", ppContractEnd: "2028-02-27", ppModules: [1, 2, 4, 8], adminUrl: ppAdmin("pf7fc5bf378"), country: "US", organizationType: "enterprise" },
   xxxlutz: { ppOrgId: 6865, ppSlug: "p2eb02f9af1", ppName: "XXXLutz Group", contractedVolumeAnnual: 15_000_000, ppUsers: 36, ppContractStart: "2025-01-01", ppContractEnd: "2027-12-31", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2eb02f9af1"), country: "AT", organizationType: "enterprise" },
   expondo: { ppOrgId: 2585, ppSlug: "p2300a45a7a", ppName: "Expondo", contractedVolumeAnnual: 1_200_000, ppUsers: 96, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2300a45a7a"), country: "DE", organizationType: "enterprise" },
   "vodafone-de": { ppOrgId: 5321, ppSlug: "p21193e8543", ppName: "Vodafone", contractedVolumeAnnual: 3_000_000, ppUsers: 19, ppContractStart: "2026-04-01", ppContractEnd: "2027-04-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p21193e8543"), country: "DE", organizationType: "enterprise" },
-  "charles-keith": { ppOrgId: 5491, ppSlug: "pa8c9704fda", ppName: "Charles & Keith", contractedVolumeAnnual: 900_000, ppUsers: 43, ppContractStart: "2024-07-18", ppContractEnd: "2026-07-18", ppModules: [1, 2, 4], adminUrl: ppAdmin("pa8c9704fda"), country: "SG", organizationType: "enterprise" },
+  // Cost Audit confirmed: CI-8332/8333/8334/8337 Skyquick invoice processing tickets; Slack "DHL Freight invoice upload" blocker
+  "charles-keith": { ppOrgId: 5491, ppSlug: "pa8c9704fda", ppName: "Charles & Keith", contractedVolumeAnnual: 900_000, ppUsers: 43, ppContractStart: "2024-07-18", ppContractEnd: "2026-07-18", ppModules: [1, 2, 4, 32], adminUrl: ppAdmin("pa8c9704fda"), country: "SG", organizationType: "enterprise" },
   "ms-direct": { ppOrgId: 6036, ppSlug: "p32d43b05bf", ppName: "MS Direct", contractedVolumeAnnual: 500_000, ppUsers: 4, ppContractStart: "2026-03-31", ppContractEnd: "2027-03-30", ppModules: [2, 4], adminUrl: ppAdmin("p32d43b05bf"), country: "CH", organizationType: "enterprise" },
   "nespresso-mx": { ppOrgId: 2831, ppSlug: "pc8203a0148", ppName: "Nespresso Mexico", contractedVolumeAnnual: 296_135, ppUsers: 29, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("pc8203a0148"), country: "MX", organizationType: "enterprise" },
-  "nespresso-cl": { ppOrgId: 4526, ppSlug: "p4fbec0bf10", ppName: "Nespresso Chile", contractedVolumeAnnual: 120_000, ppUsers: 18, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p4fbec0bf10"), country: "CL", organizationType: "enterprise" },
+  // SLA confirmed: CI-8299 [Horizon] Carrier SLA update for E-Darkstore; CI-8300 [Matrix] E2E SLA update
+  "nespresso-cl": { ppOrgId: 4526, ppSlug: "p4fbec0bf10", ppName: "Nespresso Chile", contractedVolumeAnnual: 120_000, ppUsers: 18, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4, 128], adminUrl: ppAdmin("p4fbec0bf10"), country: "CL", organizationType: "enterprise" },
   "nespresso-at": { ppOrgId: 3748, ppSlug: "p20ec38750f", ppName: "Nespresso Austria", contractedVolumeAnnual: 812_243, ppUsers: 25, ppContractStart: "2025-01-01", ppContractEnd: "2027-01-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p20ec38750f"), country: "AT", organizationType: "enterprise" },
   limango: { ppOrgId: 4707, ppSlug: "p816b010016", ppName: "Limango", contractedVolumeAnnual: 2_000_000, ppUsers: 7, ppContractStart: "2026-02-28", ppContractEnd: "2027-05-28", ppModules: [2, 4], adminUrl: ppAdmin("p816b010016"), country: "DE", organizationType: "enterprise" },
   "bettzeit-emma": { ppOrgId: 3624, ppSlug: "p6d25cda79a", ppName: "EMMA", contractedVolumeAnnual: 6_000_000, ppUsers: 248, ppContractStart: "2025-08-28", ppContractEnd: "2026-08-29", ppModules: [1, 2, 4], adminUrl: ppAdmin("p6d25cda79a"), country: "GB", organizationType: "enterprise" },
-  flaconi: { ppOrgId: 6035, ppSlug: "p2771141cf8", ppName: "Flaconi Production", contractedVolumeAnnual: 10_000_000, ppUsers: 48, ppContractStart: "2026-03-31", ppContractEnd: "2027-03-30", ppModules: [2, 4], adminUrl: ppAdmin("p2771141cf8"), country: "DE", organizationType: "enterprise" },
+  // AI VIS confirmed: Slack kickoff visit report posted (onboarding, credit utilization, prompting strategy); CEO-level demo completed
+  flaconi: { ppOrgId: 6035, ppSlug: "p2771141cf8", ppName: "Flaconi Production", contractedVolumeAnnual: 10_000_000, ppUsers: 48, ppContractStart: "2026-03-31", ppContractEnd: "2027-03-30", ppModules: [2, 4, 16], adminUrl: ppAdmin("p2771141cf8"), country: "DE", organizationType: "enterprise" },
   byrd: { ppOrgId: 5029, ppSlug: "p389f6644a3", ppName: "Byrd", contractedVolumeAnnual: 2_000_000, ppUsers: 6, ppContractStart: "2025-03-01", ppContractEnd: "2027-03-02", ppModules: [1, 2, 4], adminUrl: ppAdmin("p389f6644a3"), country: "AT", organizationType: "enterprise" },
   fiege: { ppOrgId: 5758, ppSlug: "p344a9e0bf8", ppName: "Fiege", contractedVolumeAnnual: 100_000, ppUsers: 2, ppContractStart: "2026-02-27", ppContractEnd: "2027-02-26", ppModules: [4], adminUrl: ppAdmin("p344a9e0bf8"), country: "DE", organizationType: "enterprise" },
   zenfulfillment: { ppOrgId: 4740, ppSlug: "p66f7cecf7e", ppName: "Zenfulfillment", contractedVolumeAnnual: 1_000_000, ppUsers: 10, ppContractStart: "2023-02-18", ppContractEnd: "2027-02-18", ppModules: [1, 2, 4], adminUrl: ppAdmin("p66f7cecf7e"), country: "DE", organizationType: "enterprise" },
   nuki: { ppOrgId: 4538, ppSlug: "p724c066acc", ppName: "Nuki", contractedVolumeAnnual: 200_000, ppUsers: 84, ppContractStart: "2025-05-21", ppContractEnd: "2026-05-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("p724c066acc"), country: "AT", organizationType: "enterprise" },
   motea: { ppOrgId: 4384, ppSlug: "p2514e4e5da", ppName: "MOTEA - MOTORRAD. EINFACH. ONLINE", contractedVolumeAnnual: 550_000, ppUsers: 10, ppContractStart: "2026-04-13", ppContractEnd: "2029-04-13", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2514e4e5da"), country: "DE", organizationType: "enterprise" },
   "waterdrop-at": { ppOrgId: 4364, ppSlug: "p2d7bcf6f85", ppName: "Waterdrop", contractedVolumeAnnual: 1_500_000, ppUsers: 29, ppContractStart: "2026-04-19", ppContractEnd: "2027-04-18", ppModules: [2, 4], adminUrl: ppAdmin("p2d7bcf6f85"), country: "AT", organizationType: "enterprise" },
-  sfs: { ppOrgId: 5164, ppSlug: "pe18eb37c86", ppName: "SFS Group Schweiz AG", contractedVolumeAnnual: 650_000, ppUsers: 10, ppContractStart: "2023-06-22", ppContractEnd: "2026-06-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("pe18eb37c86"), country: "CH", organizationType: "enterprise" },
+  // Renewal 2026 signed (year 1 of 3) — HubSpot deal 38691774881, close 2026-06-22; new 3-year term to 2029-06-22
+  sfs: { ppOrgId: 5164, ppSlug: "pe18eb37c86", ppName: "SFS Group Schweiz AG", contractedVolumeAnnual: 650_000, ppUsers: 10, ppContractStart: "2026-06-22", ppContractEnd: "2029-06-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("pe18eb37c86"), country: "CH", organizationType: "enterprise" },
   alaiko: { ppOrgId: 3886, ppSlug: "pa44806b6e7", ppName: "Alaiko GmbH", contractedVolumeAnnual: 600_000, ppUsers: 11, ppContractStart: "2024-11-18", ppContractEnd: "2026-11-19", ppModules: [2, 4], adminUrl: ppAdmin("pa44806b6e7"), country: "DE", organizationType: "enterprise" },
   everstox: { ppOrgId: 4478, ppSlug: "p639895098c", ppName: "everstox", contractedVolumeAnnual: 2_000_000, ppUsers: 23, ppContractStart: "2026-03-30", ppContractEnd: "2027-03-29", ppModules: [1, 2, 4], adminUrl: ppAdmin("p639895098c"), country: "DE", organizationType: "enterprise" },
   "seven-senders": { ppOrgId: 1422, ppSlug: "pa79f37570e", ppName: "SevenSenders", contractedVolumeAnnual: 2_400_000, ppUsers: 0, ppContractStart: "2025-11-02", ppContractEnd: "2026-11-03", ppModules: [1, 2, 4], adminUrl: ppAdmin("pa79f37570e"), country: "DE", organizationType: "enterprise" },
-  // Nespresso country units — slug + user count from org list, no detailed membership pulled
-  "nespresso-uk": { ppOrgId: 4797, ppSlug: "p65f4510dc7", ppName: "Nespresso UK", contractedVolumeAnnual: 0, ppUsers: 385, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p65f4510dc7"), country: "GB", organizationType: "enterprise" },
-  "nespresso-ch": { ppOrgId: 4791, ppSlug: "p4dac4840f6", ppName: "Nespresso Switzerland", contractedVolumeAnnual: 0, ppUsers: 222, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p4dac4840f6"), country: "CH", organizationType: "enterprise" },
-  "nespresso-ca": { ppOrgId: 3883, ppSlug: "p559ab7b0f7", ppName: "Nespresso Canada", contractedVolumeAnnual: 0, ppUsers: 348, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p559ab7b0f7"), country: "CA", organizationType: "enterprise" },
-  "nespresso-anz": { ppOrgId: 4050, ppSlug: "p4700594191", ppName: "Nespresso Australia", contractedVolumeAnnual: 0, ppUsers: 168, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p4700594191"), country: "AU", organizationType: "enterprise" },
-  "nespresso-nl": { ppOrgId: 1594, ppSlug: "p91c4b0ea1d", ppName: "Nespresso Netherlands", contractedVolumeAnnual: 0, ppUsers: 178, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p91c4b0ea1d"), country: "NL", organizationType: "enterprise" },
-  "nespresso-br": { ppOrgId: 4407, ppSlug: "pff3c787c3c", ppName: "Nespresso Brazil", contractedVolumeAnnual: 0, ppUsers: 150, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("pff3c787c3c"), country: "BR", organizationType: "enterprise" },
-  "nespresso-be": { ppOrgId: 3719, ppSlug: "pd0ae3a4844", ppName: "Nespresso Belgium", contractedVolumeAnnual: 0, ppUsers: 97, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("pd0ae3a4844"), country: "BE", organizationType: "enterprise" },
-  "nespresso-gr": { ppOrgId: 4441, ppSlug: "p1806673af0", ppName: "Nespresso Greece", contractedVolumeAnnual: 0, ppUsers: 93, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p1806673af0"), country: "GR", organizationType: "enterprise" },
-  "nespresso-cz": { ppOrgId: 4443, ppSlug: "pc618a5b2fd", ppName: "Nespresso Czech Republic", contractedVolumeAnnual: 0, ppUsers: 42, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("pc618a5b2fd"), country: "CZ", organizationType: "enterprise" },
-  "nespresso-hu": { ppOrgId: 4442, ppSlug: "p34c346031a", ppName: "Nespresso Hungary", contractedVolumeAnnual: 0, ppUsers: 37, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p34c346031a"), country: "HU", organizationType: "enterprise" },
-  "nespresso-ar": { ppOrgId: 4528, ppSlug: "pe42d2cb5fc", ppName: "Nespresso Argentina", contractedVolumeAnnual: 0, ppUsers: 35, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("pe42d2cb5fc"), country: "AR", organizationType: "enterprise" },
-  "nespresso-pl": { ppOrgId: 6022, ppSlug: "p40d3809129", ppName: "Nespresso Poland", contractedVolumeAnnual: 0, ppUsers: 29, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p40d3809129"), country: "PL", organizationType: "enterprise" },
-  "nespresso-co": { ppOrgId: 4530, ppSlug: "p7e7ffb2796", ppName: "Nespresso Colombia", contractedVolumeAnnual: 0, ppUsers: 19, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p7e7ffb2796"), country: "CO", organizationType: "enterprise" },
-  "nespresso-pt": { ppOrgId: 1595, ppSlug: "pb40340d1ba", ppName: "Nespresso Portugal", contractedVolumeAnnual: 0, ppUsers: 18, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("pb40340d1ba"), country: "PT", organizationType: "enterprise" },
-  "nespresso-kr": { ppOrgId: 4656, ppSlug: "p49ce23e8f9", ppName: "Nespresso Korea", contractedVolumeAnnual: 0, ppUsers: 15, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p49ce23e8f9"), country: "KR", organizationType: "enterprise" },
-  "nespresso-hk": { ppOrgId: 4059, ppSlug: "p1d3364fdef", ppName: "Nespresso Hong Kong", contractedVolumeAnnual: 0, ppUsers: 14, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p1d3364fdef"), country: "HK", organizationType: "enterprise" },
-  "nespresso-nordics": { ppOrgId: 4445, ppSlug: "p2c74510ea8", ppName: "Nespresso Nordics", contractedVolumeAnnual: 0, ppUsers: 13, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p2c74510ea8"), country: "DK", organizationType: "enterprise" },
-  "nespresso-th": { ppOrgId: 1596, ppSlug: "p28ec2800b2", ppName: "Nespresso Thailand", contractedVolumeAnnual: 0, ppUsers: 12, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p28ec2800b2"), country: "TH", organizationType: "enterprise" },
-  "nespresso-it": { ppOrgId: 4042, ppSlug: "p0fb8a1ce52", ppName: "Nespresso Italy", contractedVolumeAnnual: 0, ppUsers: 16, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p0fb8a1ce52"), country: "IT", organizationType: "enterprise" },
-  nespresso: { ppOrgId: 1171, ppSlug: "p24d961cf8d", ppName: "Nespresso HQ", contractedVolumeAnnual: 0, ppUsers: 17, ppContractStart: "", ppContractEnd: "", ppModules: [], adminUrl: ppAdmin("p24d961cf8d"), country: "CH", organizationType: "enterprise" },
+  // Nespresso country units — modules inferred from Jira tickets, Slack signals, Gmail threads, and user counts
+  // All markets have been on the platform ≥ 2 years; [1,2,4] = standard Tracking + Notifications + Post-Purchase package
+  "nespresso-uk": { ppOrgId: 4797, ppSlug: "p65f4510dc7", ppName: "Nespresso UK", contractedVolumeAnnual: 0, ppUsers: 385, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p65f4510dc7"), country: "GB", organizationType: "enterprise" },
+  "nespresso-ch": { ppOrgId: 4791, ppSlug: "p4dac4840f6", ppName: "Nespresso Switzerland", contractedVolumeAnnual: 0, ppUsers: 222, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p4dac4840f6"), country: "CH", organizationType: "enterprise" },
+  "nespresso-ca": { ppOrgId: 3883, ppSlug: "p559ab7b0f7", ppName: "Nespresso Canada", contractedVolumeAnnual: 0, ppUsers: 348, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p559ab7b0f7"), country: "CA", organizationType: "enterprise" },
+  "nespresso-anz": { ppOrgId: 4050, ppSlug: "p4700594191", ppName: "Nespresso Australia", contractedVolumeAnnual: 0, ppUsers: 168, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p4700594191"), country: "AU", organizationType: "enterprise" },
+  "nespresso-nl": { ppOrgId: 1594, ppSlug: "p91c4b0ea1d", ppName: "Nespresso Netherlands", contractedVolumeAnnual: 0, ppUsers: 178, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p91c4b0ea1d"), country: "NL", organizationType: "enterprise" },
+  // EDD confirmed: CI-8222 [Matrix] city-level holidays in EDD calculation; CI-8316 EDD Lookup table update
+  "nespresso-br": { ppOrgId: 4407, ppSlug: "pff3c787c3c", ppName: "Nespresso Brazil", contractedVolumeAnnual: 0, ppUsers: 150, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4, 64], adminUrl: ppAdmin("pff3c787c3c"), country: "BR", organizationType: "enterprise" },
+  "nespresso-be": { ppOrgId: 3719, ppSlug: "pd0ae3a4844", ppName: "Nespresso Belgium", contractedVolumeAnnual: 0, ppUsers: 97, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("pd0ae3a4844"), country: "BE", organizationType: "enterprise" },
+  // Returns confirmed: CI-8159 Box Now Integration for Return Use Case (status: Review); SLA in feasibility only
+  "nespresso-gr": { ppOrgId: 4441, ppSlug: "p1806673af0", ppName: "Nespresso Greece", contractedVolumeAnnual: 0, ppUsers: 93, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4, 8], adminUrl: ppAdmin("p1806673af0"), country: "GR", organizationType: "enterprise" },
+  // Slack: "Carrier & E2E SLA update — 13 mandays scoped"
+  "nespresso-cz": { ppOrgId: 4443, ppSlug: "pc618a5b2fd", ppName: "Nespresso Czech Republic", contractedVolumeAnnual: 0, ppUsers: 42, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("pc618a5b2fd"), country: "CZ", organizationType: "enterprise" },
+  // CI-8304 DHL Hungary private API integration
+  "nespresso-hu": { ppOrgId: 4442, ppSlug: "p34c346031a", ppName: "Nespresso Hungary", contractedVolumeAnnual: 0, ppUsers: 37, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p34c346031a"), country: "HU", organizationType: "enterprise" },
+  "nespresso-ar": { ppOrgId: 4528, ppSlug: "pe42d2cb5fc", ppName: "Nespresso Argentina", contractedVolumeAnnual: 0, ppUsers: 35, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("pe42d2cb5fc"), country: "AR", organizationType: "enterprise" },
+  "nespresso-pl": { ppOrgId: 6022, ppSlug: "p40d3809129", ppName: "Nespresso Poland", contractedVolumeAnnual: 0, ppUsers: 29, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p40d3809129"), country: "PL", organizationType: "enterprise" },
+  // Emerging LATAM market (since 2023) — Tracking + Notifications confirmed; PTP not yet rolled out
+  "nespresso-co": { ppOrgId: 4530, ppSlug: "p7e7ffb2796", ppName: "Nespresso Colombia", contractedVolumeAnnual: 0, ppUsers: 19, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2], adminUrl: ppAdmin("p7e7ffb2796"), country: "CO", organizationType: "enterprise" },
+  // Gmail: "Missing Notifications" — confirms Notifications module active
+  "nespresso-pt": { ppOrgId: 1595, ppSlug: "pb40340d1ba", ppName: "Nespresso Portugal", contractedVolumeAnnual: 0, ppUsers: 18, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("pb40340d1ba"), country: "PT", organizationType: "enterprise" },
+  "nespresso-kr": { ppOrgId: 4656, ppSlug: "p49ce23e8f9", ppName: "Nespresso Korea", contractedVolumeAnnual: 0, ppUsers: 15, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p49ce23e8f9"), country: "KR", organizationType: "enterprise" },
+  "nespresso-hk": { ppOrgId: 4059, ppSlug: "p1d3364fdef", ppName: "Nespresso Hong Kong", contractedVolumeAnnual: 0, ppUsers: 14, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p1d3364fdef"), country: "HK", organizationType: "enterprise" },
+  "nespresso-nordics": { ppOrgId: 4445, ppSlug: "p2c74510ea8", ppName: "Nespresso Nordics", contractedVolumeAnnual: 0, ppUsers: 13, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2c74510ea8"), country: "DK", organizationType: "enterprise" },
+  // Gmail: "Order Tracking not EDI to Parcel Perform" — confirms Tracking module
+  "nespresso-th": { ppOrgId: 1596, ppSlug: "p28ec2800b2", ppName: "Nespresso Thailand", contractedVolumeAnnual: 0, ppUsers: 12, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p28ec2800b2"), country: "TH", organizationType: "enterprise" },
+  // Gmail: new delivery mode DM91 Italmondo — confirms Tracking module
+  "nespresso-it": { ppOrgId: 4042, ppSlug: "p0fb8a1ce52", ppName: "Nespresso Italy", contractedVolumeAnnual: 0, ppUsers: 16, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p0fb8a1ce52"), country: "IT", organizationType: "enterprise" },
+  // CI-7764 shipping events, CI-7827 shipments from Order ID, CI-7983 PII deletion rollout
+  nespresso: { ppOrgId: 1171, ppSlug: "p24d961cf8d", ppName: "Nespresso HQ", contractedVolumeAnnual: 0, ppUsers: 17, ppContractStart: "", ppContractEnd: "", ppModules: [1, 2, 4], adminUrl: ppAdmin("p24d961cf8d"), country: "CH", organizationType: "enterprise" },
 };
 
 function attachProductData() {
@@ -1352,11 +1367,12 @@ const realUsageById: Record<string, { shipments: number; periodStart: string }> 
   limango: { shipments: 322106, periodStart: "2026-02-28" },
   byrd: { shipments: 224610, periodStart: "2026-03-01" },
   fiege: { shipments: 2381, periodStart: "2026-02-27" },
-  zenfulfillment: { shipments: 982, periodStart: "2026-02-18" },
+  // 1,059 real shipments — 0.1% of 1M contracted; plan only upgraded to 1M on 2026-04-15 (HubSpot deal 54020403113)
+  zenfulfillment: { shipments: 1_059, periodStart: "2026-02-18" },
   nuki: { shipments: 153526, periodStart: "2025-05-21" },
   motea: { shipments: 65529, periodStart: "2026-04-13" },
   "waterdrop-at": { shipments: 86120, periodStart: "2026-04-19" },
-  sfs: { shipments: 496838, periodStart: "2025-06-22" },
+  sfs: { shipments: 504_556, periodStart: "2025-06-22" },
   alaiko: { shipments: 380720, periodStart: "2025-11-18" },
   everstox: { shipments: 276401, periodStart: "2026-03-30" },
   "seven-senders": { shipments: 1425039, periodStart: "2025-11-02" },
