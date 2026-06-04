@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle, ArrowUpDown, ChevronDown, ChevronUp, Search, X, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -51,16 +52,32 @@ const PRESET_LABELS: Record<NonNullable<TableFilterPreset>, string> = {
 export function AccountsTable({
   accounts,
   nespressoAccounts,
-  preset: initialPreset = null,
 }: {
   accounts: Account[];
   nespressoAccounts: Account[];
-  preset?: TableFilterPreset;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const urlFilter = searchParams.get("filter") as TableFilterPreset;
+  const preset: TableFilterPreset =
+    urlFilter === "renewals" ? "renewals" :
+    urlFilter === "at-risk" ? "at-risk" :
+    null;
+
   const [query, setQuery] = useState("");
-  const [preset, setPreset] = useState<TableFilterPreset>(initialPreset);
-  const [sortKey, setSortKey] = useState<SortKey>(initialPreset === "renewals" ? "renewal" : "health");
+  const [sortKey, setSortKey] = useState<SortKey>(preset === "renewals" ? "renewal" : "health");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  // When preset changes (URL changes), reset sort accordingly
+  useEffect(() => {
+    setSortKey(preset === "renewals" ? "renewal" : "health");
+    setSortDir("asc");
+  }, [preset]);
+
+  function clearPreset() {
+    router.push("/#accounts");
+  }
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -113,7 +130,7 @@ export function AccountsTable({
           <span>{PRESET_LABELS[preset]}</span>
           <span className="text-amber-600">· {filtered.length} account{filtered.length !== 1 ? "s" : ""}</span>
           <button
-            onClick={() => { setPreset(null); setSortKey("health"); }}
+            onClick={clearPreset}
             className="ml-auto flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900"
           >
             <X className="h-3 w-3" /> Clear filter

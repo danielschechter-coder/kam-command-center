@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowUpRight, CalendarClock, DollarSign, ListChecks, ShieldAlert, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { StatCard } from "@/components/stat-card";
 import { HealthPill } from "@/components/health-pill";
 import { AccountAvatar } from "@/components/account-avatar";
 import { SourcePill } from "@/components/source-pill";
-import { AccountsTable, type TableFilterPreset } from "@/components/accounts-table";
+import { AccountsTable } from "@/components/accounts-table";
 import { accounts, actionItems, sourceStatus } from "@/lib/mockData";
 import { cn, daysUntil, formatCurrency, formatRelative, priorityClasses } from "@/lib/utils";
 import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
@@ -24,12 +25,7 @@ function attentionScore(a: (typeof accounts)[number]) {
 const nespressoAccounts = accounts.filter((a) => a.id.startsWith("nespresso"));
 const nonNespressoAccounts = accounts.filter((a) => !a.id.startsWith("nespresso"));
 
-export default function DashboardPage({ searchParams }: { searchParams?: { filter?: string } }) {
-  const filterParam = searchParams?.filter;
-  const preset: TableFilterPreset =
-    filterParam === "renewals" ? "renewals" :
-    filterParam === "at-risk" ? "at-risk" :
-    null;
+export default function DashboardPage() {
   const totalArr = accounts.reduce((s, a) => s + a.arr, 0);
   const atRiskArr = accounts.filter((a) => a.health === "at_risk" || a.health === "critical").reduce((s, a) => s + a.arr, 0);
   const renewalsNext90 = accounts.filter((a) => {
@@ -323,7 +319,9 @@ export default function DashboardPage({ searchParams }: { searchParams?: { filte
           </p>
         </CardHeader>
         <CardContent className="pt-2">
-          <AccountsTable accounts={nonNespressoAccounts} nespressoAccounts={nespressoAccounts} preset={preset} />
+          <Suspense fallback={<p className="py-8 text-center text-sm text-muted-foreground">Loading…</p>}>
+            <AccountsTable accounts={nonNespressoAccounts} nespressoAccounts={nespressoAccounts} />
+          </Suspense>
         </CardContent>
       </Card>
     </div>
