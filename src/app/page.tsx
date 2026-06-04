@@ -108,6 +108,7 @@ export default function DashboardPage() {
           hint={`${accounts.length} accounts`}
           icon={DollarSign}
           tone="neutral"
+          href="#accounts"
         />
         <StatCard
           label="ARR at risk"
@@ -115,6 +116,7 @@ export default function DashboardPage() {
           hint={`${accounts.filter((a) => a.health === "at_risk" || a.health === "critical").length} accounts`}
           icon={ShieldAlert}
           tone="danger"
+          href="#attention"
         />
         <StatCard
           label="Renewals (90d)"
@@ -122,6 +124,7 @@ export default function DashboardPage() {
           hint={renewalsNext90.length ? formatCurrency(renewalsNext90.reduce((s, a) => s + a.arr, 0)) + " in motion" : "Nothing imminent"}
           icon={CalendarClock}
           tone="warning"
+          href="#attention"
         />
         <StatCard
           label="Open actions"
@@ -129,11 +132,12 @@ export default function DashboardPage() {
           hint={`${openRisks} active risks`}
           icon={ListChecks}
           tone="neutral"
+          href="/actions"
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2" id="attention">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
               <CardTitle>Accounts needing attention</CardTitle>
@@ -302,7 +306,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card id="accounts">
         <CardHeader className="pb-2">
           <CardTitle>All accounts</CardTitle>
           <p className="text-xs text-muted-foreground">
