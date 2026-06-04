@@ -6,7 +6,7 @@ import { StatCard } from "@/components/stat-card";
 import { HealthPill } from "@/components/health-pill";
 import { AccountAvatar } from "@/components/account-avatar";
 import { SourcePill } from "@/components/source-pill";
-import { AccountsTable } from "@/components/accounts-table";
+import { AccountsTable, type TableFilterPreset } from "@/components/accounts-table";
 import { accounts, actionItems, sourceStatus } from "@/lib/mockData";
 import { cn, daysUntil, formatCurrency, formatRelative, priorityClasses } from "@/lib/utils";
 import { buildHealthRationale, isRenewalAndVolumeRisk } from "@/lib/health";
@@ -24,7 +24,12 @@ function attentionScore(a: (typeof accounts)[number]) {
 const nespressoAccounts = accounts.filter((a) => a.id.startsWith("nespresso"));
 const nonNespressoAccounts = accounts.filter((a) => !a.id.startsWith("nespresso"));
 
-export default function DashboardPage() {
+export default function DashboardPage({ searchParams }: { searchParams?: { filter?: string } }) {
+  const filterParam = searchParams?.filter;
+  const preset: TableFilterPreset =
+    filterParam === "renewals" ? "renewals" :
+    filterParam === "at-risk" ? "at-risk" :
+    null;
   const totalArr = accounts.reduce((s, a) => s + a.arr, 0);
   const atRiskArr = accounts.filter((a) => a.health === "at_risk" || a.health === "critical").reduce((s, a) => s + a.arr, 0);
   const renewalsNext90 = accounts.filter((a) => {
@@ -116,7 +121,7 @@ export default function DashboardPage() {
           hint={`${accounts.filter((a) => a.health === "at_risk" || a.health === "critical").length} accounts`}
           icon={ShieldAlert}
           tone="danger"
-          href="#attention"
+          href="/?filter=at-risk#accounts"
         />
         <StatCard
           label="Renewals (90d)"
@@ -124,7 +129,7 @@ export default function DashboardPage() {
           hint={renewalsNext90.length ? formatCurrency(renewalsNext90.reduce((s, a) => s + a.arr, 0)) + " in motion" : "Nothing imminent"}
           icon={CalendarClock}
           tone="warning"
-          href="#attention"
+          href="/?filter=renewals#accounts"
         />
         <StatCard
           label="Open actions"
@@ -318,7 +323,7 @@ export default function DashboardPage() {
           </p>
         </CardHeader>
         <CardContent className="pt-2">
-          <AccountsTable accounts={nonNespressoAccounts} nespressoAccounts={nespressoAccounts} />
+          <AccountsTable accounts={nonNespressoAccounts} nespressoAccounts={nespressoAccounts} preset={preset} />
         </CardContent>
       </Card>
     </div>
