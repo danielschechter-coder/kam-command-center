@@ -361,7 +361,7 @@ const raw: Raw[] = [
     score: 0,
     atRisk: false,
     lastTouch: "2026-03-10",
-    notes: "Quiet account (~63 days since last touch). Only 8 contacts — concentration risk. Re-establish sponsor before March anniversary.",
+    notes: "3-year renewal signed (year 1 of 3, €25,389/yr) — new term runs 2026-06-22 to 2029-06-22. Only 8 contacts — concentration risk. Keep executive sponsor engaged.",
   },
   {
     id: "waterdrop-at",
@@ -681,7 +681,7 @@ const raw: Raw[] = [
     score: 0,
     atRisk: false,
     lastTouch: "2026-04-24",
-    notes: "Open BDM-to-KAM handover for 2026-2027 renewal. CEO is reachable and engaged.",
+    notes: "Tier upgraded to 1M on 2026-04-15 (was on smaller plan). Usage shows ~0% against new 1M contract — expected given the plan changed just weeks ago. Monitor ramp-up. CEO reachable and engaged.",
     contactList: [
       { name: "Johannes Humpert", title: "CEO & Managing Director", email: "johannes.humpert@zenfulfillment.com", isExecutiveSponsor: true },
       { name: "Ievgen Demchenko", title: "CTO", email: "ievgen.demchenko@zenfulfillment.com", isChampion: true },
@@ -1295,7 +1295,8 @@ const ppDataById: Record<string, ProductData> = {
   nuki: { ppOrgId: 4538, ppSlug: "p724c066acc", ppName: "Nuki", contractedVolumeAnnual: 200_000, ppUsers: 84, ppContractStart: "2025-05-21", ppContractEnd: "2026-05-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("p724c066acc"), country: "AT", organizationType: "enterprise" },
   motea: { ppOrgId: 4384, ppSlug: "p2514e4e5da", ppName: "MOTEA - MOTORRAD. EINFACH. ONLINE", contractedVolumeAnnual: 550_000, ppUsers: 10, ppContractStart: "2026-04-13", ppContractEnd: "2029-04-13", ppModules: [1, 2, 4], adminUrl: ppAdmin("p2514e4e5da"), country: "DE", organizationType: "enterprise" },
   "waterdrop-at": { ppOrgId: 4364, ppSlug: "p2d7bcf6f85", ppName: "Waterdrop", contractedVolumeAnnual: 1_500_000, ppUsers: 29, ppContractStart: "2026-04-19", ppContractEnd: "2027-04-18", ppModules: [2, 4], adminUrl: ppAdmin("p2d7bcf6f85"), country: "AT", organizationType: "enterprise" },
-  sfs: { ppOrgId: 5164, ppSlug: "pe18eb37c86", ppName: "SFS Group Schweiz AG", contractedVolumeAnnual: 650_000, ppUsers: 10, ppContractStart: "2023-06-22", ppContractEnd: "2026-06-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("pe18eb37c86"), country: "CH", organizationType: "enterprise" },
+  // Renewal 2026 signed (year 1 of 3) — HubSpot deal 38691774881, close 2026-06-22; new 3-year term to 2029-06-22
+  sfs: { ppOrgId: 5164, ppSlug: "pe18eb37c86", ppName: "SFS Group Schweiz AG", contractedVolumeAnnual: 650_000, ppUsers: 10, ppContractStart: "2026-06-22", ppContractEnd: "2029-06-22", ppModules: [1, 2, 4], adminUrl: ppAdmin("pe18eb37c86"), country: "CH", organizationType: "enterprise" },
   alaiko: { ppOrgId: 3886, ppSlug: "pa44806b6e7", ppName: "Alaiko GmbH", contractedVolumeAnnual: 600_000, ppUsers: 11, ppContractStart: "2024-11-18", ppContractEnd: "2026-11-19", ppModules: [2, 4], adminUrl: ppAdmin("pa44806b6e7"), country: "DE", organizationType: "enterprise" },
   everstox: { ppOrgId: 4478, ppSlug: "p639895098c", ppName: "everstox", contractedVolumeAnnual: 2_000_000, ppUsers: 23, ppContractStart: "2026-03-30", ppContractEnd: "2027-03-29", ppModules: [1, 2, 4], adminUrl: ppAdmin("p639895098c"), country: "DE", organizationType: "enterprise" },
   "seven-senders": { ppOrgId: 1422, ppSlug: "pa79f37570e", ppName: "SevenSenders", contractedVolumeAnnual: 2_400_000, ppUsers: 0, ppContractStart: "2025-11-02", ppContractEnd: "2026-11-03", ppModules: [1, 2, 4], adminUrl: ppAdmin("pa79f37570e"), country: "DE", organizationType: "enterprise" },
@@ -1366,11 +1367,12 @@ const realUsageById: Record<string, { shipments: number; periodStart: string }> 
   limango: { shipments: 322106, periodStart: "2026-02-28" },
   byrd: { shipments: 224610, periodStart: "2026-03-01" },
   fiege: { shipments: 2381, periodStart: "2026-02-27" },
-  zenfulfillment: { shipments: 982, periodStart: "2026-02-18" },
+  // 1,059 real shipments — 0.1% of 1M contracted; plan only upgraded to 1M on 2026-04-15 (HubSpot deal 54020403113)
+  zenfulfillment: { shipments: 1_059, periodStart: "2026-02-18" },
   nuki: { shipments: 153526, periodStart: "2025-05-21" },
   motea: { shipments: 65529, periodStart: "2026-04-13" },
   "waterdrop-at": { shipments: 86120, periodStart: "2026-04-19" },
-  sfs: { shipments: 496838, periodStart: "2025-06-22" },
+  sfs: { shipments: 504_556, periodStart: "2025-06-22" },
   alaiko: { shipments: 380720, periodStart: "2025-11-18" },
   everstox: { shipments: 276401, periodStart: "2026-03-30" },
   "seven-senders": { shipments: 1425039, periodStart: "2025-11-02" },

@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { AlertTriangle, ArrowUpDown, ChevronDown, ChevronUp, Search, Zap } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, ChevronDown, ChevronUp, Search, X, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { HealthPill } from "@/components/health-pill";
 import { AccountAvatar } from "@/components/account-avatar";
 import { NespressoGroup } from "@/components/nespresso-group";
 import type { Account, HealthStatus } from "@/lib/types";
-import { cn, formatCurrency, formatRelative } from "@/lib/utils";
+import { cn, daysUntil, formatCurrency, formatRelative } from "@/lib/utils";
 import { isRenewalAndVolumeRisk } from "@/lib/health";
 
 const TODAY = new Date("2026-05-19");
+
+export type TableFilterPreset = "renewals" | "at-risk" | null;
 
 type SortKey = "name" | "health" | "arr" | "renewal" | "risks" | "usage" | "lastTouch";
 type SortDir = "asc" | "desc";
@@ -41,10 +44,40 @@ function SortIcon({ col, activeKey, dir }: { col: SortKey; activeKey: SortKey; d
     : <ChevronDown className="ml-1 inline h-3 w-3 text-foreground" />;
 }
 
-export function AccountsTable({ accounts, nespressoAccounts }: { accounts: Account[]; nespressoAccounts: Account[] }) {
+const PRESET_LABELS: Record<NonNullable<TableFilterPreset>, string> = {
+  renewals: "Renewing in 90 days",
+  "at-risk": "At risk or critical",
+};
+
+export function AccountsTable({
+  accounts,
+  nespressoAccounts,
+}: {
+  accounts: Account[];
+  nespressoAccounts: Account[];
+}) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const urlFilter = searchParams.get("filter") as TableFilterPreset;
+  const preset: TableFilterPreset =
+    urlFilter === "renewals" ? "renewals" :
+    urlFilter === "at-risk" ? "at-risk" :
+    null;
+
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("health");
+  const [sortKey, setSortKey] = useState<SortKey>(preset === "renewals" ? "renewal" : "health");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  // When preset changes (URL changes), reset sort accordingly
+  useEffect(() => {
+    setSortKey(preset === "renewals" ? "renewal" : "health");
+    setSortDir("asc");
+  }, [preset]);
+
+  function clearPreset() {
+    router.push("/#accounts");
+  }
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -56,20 +89,26 @@ export function AccountsTable({ accounts, nespressoAccounts }: { accounts: Accou
   }
 
   const filtered = useMemo(() => {
+    // When a preset is active, include all accounts (nespresso too) so counts match the stat cards
+    let base = preset ? [...accounts, ...nespressoAccounts] : accounts;
+    // Apply preset filter
+    if (preset === "renewals") {
+      base = base.filter((a) => { const d = daysUntil(a.renewalDate, TODAY); return d >= 0 && d <= 90; });
+    } else if (preset === "at-risk") {
+      base = base.filter((a) => a.health === "at_risk" || a.health === "critical");
+    }
+    // Apply search query
     const q = query.trim().toLowerCase();
-    const base = q
-      ? accounts.filter(
-          (a) =>
-            a.name.toLowerCase().includes(q) ||
-            a.industry.toLowerCase().includes(q) ||
-            a.region.toLowerCase().includes(q) ||
-            a.segment.toLowerCase().includes(q),
-        )
-      : accounts;
+    if (q) base = base.filter((a) =>
+      a.name.toLowerCase().includes(q) ||
+      a.industry.toLowerCase().includes(q) ||
+      a.region.toLowerCase().includes(q) ||
+      a.segment.toLowerCase().includes(q),
+    );
     return sortAccounts(base, sortKey, sortDir);
-  }, [accounts, query, sortKey, sortDir]);
+  }, [accounts, nespressoAccounts, query, preset, sortKey, sortDir]);
 
-  const showNespresso = !query.trim();
+  const showNespresso = !query.trim() && !preset;
 
   function Th({ col, label }: { col: SortKey; label: string }) {
     return (
@@ -85,6 +124,20 @@ export function AccountsTable({ accounts, nespressoAccounts }: { accounts: Accou
 
   return (
     <div className="space-y-3">
+      {/* Preset filter banner */}
+      {preset && (
+        <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <span className="font-medium">Filtered:</span>
+          <span>{PRESET_LABELS[preset]}</span>
+          <span className="text-amber-600">· {filtered.length} account{filtered.length !== 1 ? "s" : ""}</span>
+          <button
+            onClick={clearPreset}
+            className="ml-auto flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900"
+          >
+            <X className="h-3 w-3" /> Clear filter
+          </button>
+        </div>
+      )}
       {/* Search bar */}
       <div className="relative max-w-xs">
         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
